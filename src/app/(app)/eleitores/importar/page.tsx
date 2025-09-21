@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { UploadCloud, File, CheckCircle } from 'lucide-react';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -89,13 +89,34 @@ export default function ImportarEleitoresPage() {
       />
 
       <div className="grid gap-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Instruções para o Arquivo</CardTitle>
+            <CardDescription>
+              Para garantir uma importação bem-sucedida, seu arquivo CSV ou Excel deve seguir o formato especificado abaixo.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm">O arquivo deve conter as seguintes colunas, na ordem exata e com a primeira linha servindo como cabeçalho:</p>
+            <ol className="mb-4 list-decimal pl-5 text-sm space-y-2">
+              <li><code className="font-mono bg-muted px-1.5 py-0.5 rounded-sm">nome</code>: O nome completo do eleitor.</li>
+              <li><code className="font-mono bg-muted px-1.5 py-0.5 rounded-sm">cpf</code>: O CPF do eleitor no formato <code className="font-mono bg-muted px-1.5 py-0.5 rounded-sm">000.000.000-00</code>.</li>
+              <li><code className="font-mono bg-muted px-1.5 py-0.5 rounded-sm">matricula</code>: A matrícula ou número de identificação único do eleitor.</li>
+            </ol>
+            <p className="text-sm text-muted-foreground">Exemplo de linha em um arquivo CSV:</p>
+            <pre className="mt-2 p-2 bg-muted rounded-md text-sm"><code>"João da Silva","111.222.333-44","12345678"</code></pre>
+          </CardContent>
+        </Card>
+        
         <Card
             onDrop={handleDrop}
             onDragOver={handleDragOver}
         >
-          <CardContent className="p-6">
+          <CardHeader>
+            <CardTitle>Upload de Arquivo</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="grid gap-4">
-              <h3 className="text-lg font-semibold">Upload de Arquivo</h3>
               <div className="flex items-center justify-center w-full">
                 <label
                   htmlFor="dropzone-file"
@@ -131,8 +152,10 @@ export default function ImportarEleitoresPage() {
         
         {previewData.length > 0 && (
           <Card>
-            <CardContent className="p-6">
-              <h3 className="mb-4 text-lg font-semibold">Pré-visualização</h3>
+            <CardHeader>
+              <CardTitle>Pré-visualização</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
