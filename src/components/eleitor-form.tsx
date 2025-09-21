@@ -1,0 +1,104 @@
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import type { Eleitor } from '@/lib/types';
+import { useRouter } from 'next/navigation';
+
+const formSchema = z.object({
+  nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido. Use o formato XXX.XXX.XXX-XX.'),
+  tituloEleitor: z.string().regex(/^\d{12}$/, 'Título de eleitor inválido. Deve conter 12 dígitos.'),
+});
+
+type EleitorFormValues = z.infer<typeof formSchema>;
+
+type EleitorFormProps = {
+  onSubmit: (data: EleitorFormValues) => void;
+  defaultValues?: Partial<Eleitor>;
+};
+
+export default function EleitorForm({ onSubmit, defaultValues }: EleitorFormProps) {
+  const router = useRouter();
+  const form = useForm<EleitorFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      nome: defaultValues?.nome || '',
+      cpf: defaultValues?.cpf || '',
+      tituloEleitor: defaultValues?.tituloEleitor || '',
+    },
+  });
+
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <FormField
+                control={form.control}
+                name="nome"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome Completo</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome do Eleitor" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                    control={form.control}
+                    name="cpf"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>CPF</FormLabel>
+                        <FormControl>
+                        <Input placeholder="000.000.000-00" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="tituloEleitor"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Título de Eleitor</FormLabel>
+                        <FormControl>
+                        <Input placeholder="0000 0000 0000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => router.back()}>
+                Cancelar
+              </Button>
+              <Button type="submit">Salvar</Button>
+            </div>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
+}

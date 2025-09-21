@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { MoreHorizontal, PlusCircle, Search } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search, Upload } from 'lucide-react';
+import Link from 'next/link';
 
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -43,20 +44,30 @@ export default function EleitoresPage() {
         title="Eleitores"
         description="Gerencie a lista de eleitores autorizados a votar."
       >
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Buscar eleitor..."
-            className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Buscar eleitor..."
+                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Link href="/eleitores/importar">
+                <Button variant="outline">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Importar
+                </Button>
+            </Link>
+            <Link href="/eleitores/novo">
+                <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Adicionar Eleitor
+                </Button>
+            </Link>
         </div>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Adicionar Eleitor
-        </Button>
       </PageHeader>
       <Card>
         <Table>
@@ -86,13 +97,22 @@ export default function EleitoresPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem>Editar</DropdownMenuItem>
+                      <Link href={`/eleitores/editar/${eleitor.id}`}>
+                        <DropdownMenuItem>Editar</DropdownMenuItem>
+                      </Link>
                       <DropdownMenuItem className="text-destructive focus:text-destructive">Remover</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}
+             {filteredEleitores.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center">
+                  Nenhum eleitor encontrado.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </Card>

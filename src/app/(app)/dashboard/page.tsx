@@ -17,6 +17,7 @@ import {
   Wifi,
   CheckCircle,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const statItems = [
   {
@@ -77,15 +78,17 @@ export default function DashboardPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {navItems.map((item) => (
                 <Link href={item.href} key={item.href} className="group block rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
-                    <CardHeader className="flex flex-row items-start gap-4 p-4">
-                        <div className="rounded-lg bg-primary p-3 text-primary-foreground">
-                            <item.icon className="h-6 w-6" />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-semibold">{item.label}</h3>
-                            <p className="text-sm text-muted-foreground">{item.description}</p>
-                        </div>
-                    </CardHeader>
+                    <Card>
+                        <CardHeader className="flex flex-row items-start gap-4 p-4">
+                            <div className="rounded-lg bg-primary p-3 text-primary-foreground">
+                                <item.icon className="h-6 w-6" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-lg font-semibold">{item.label}</h3>
+                                <p className="text-sm text-muted-foreground">{item.description}</p>
+                            </div>
+                        </CardHeader>
+                    </Card>
                     </Link>
                 ))}
             </div>
