@@ -85,6 +85,7 @@ export default function ImportarEleitoresPage() {
       <PageHeader
         title="Importar Eleitores"
         description="Carregue um arquivo CSV com os dados dos eleitores."
+        backHref="/eleitores"
       />
 
       <div className="grid gap-8">
