@@ -76,8 +76,7 @@ export default function DashboardPage() {
             <h2 className="mb-4 text-2xl font-semibold tracking-tight">Gerenciamento</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {navItems.map((item) => (
-                <Link href={item.href} key={item.href} passHref legacyBehavior>
-                    <a className="group block rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Link href={item.href} key={item.href} className="group block rounded-lg border bg-card text-card-foreground shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
                     <CardHeader className="flex flex-row items-start gap-4 p-4">
                         <div className="rounded-lg bg-primary p-3 text-primary-foreground">
                             <item.icon className="h-6 w-6" />
@@ -87,8 +86,7 @@ export default function DashboardPage() {
                             <p className="text-sm text-muted-foreground">{item.description}</p>
                         </div>
                     </CardHeader>
-                    </a>
-                </Link>
+                    </Link>
                 ))}
             </div>
         </section>
