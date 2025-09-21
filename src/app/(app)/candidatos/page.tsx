@@ -53,7 +53,6 @@ export default function CandidatosPage() {
     return mockCandidatos.filter(
       (c) =>
         c.nome.toLowerCase().includes(search.toLowerCase()) ||
-        c.partido.toLowerCase().includes(search.toLowerCase()) ||
         c.numero.toString().includes(search)
     );
   }, [search]);
@@ -111,7 +110,6 @@ export default function CandidatosPage() {
               <TableHead className="w-[80px]">Foto</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Número</TableHead>
-              <TableHead>Partido</TableHead>
               <TableHead>
                 <span className="sr-only">Ações</span>
               </TableHead>
@@ -128,7 +126,6 @@ export default function CandidatosPage() {
                 </TableCell>
                 <TableCell className="font-medium">{candidato.nome}</TableCell>
                 <TableCell>{candidato.numero}</TableCell>
-                <TableCell>{candidato.partido}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -157,7 +154,7 @@ export default function CandidatosPage() {
             ))}
             {filteredCandidatos.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={4} className="h-24 text-center">
                   Nenhum candidato encontrado.
                 </TableCell>
               </TableRow>

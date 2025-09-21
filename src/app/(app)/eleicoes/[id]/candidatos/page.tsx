@@ -71,8 +71,7 @@ export default function GerenciarCandidatosEleicaoPage() {
   const filteredAssociatedCandidates = useMemo(() => {
      return associatedCandidates.filter(
       (c) =>
-        c.nome.toLowerCase().includes(search.toLowerCase()) ||
-        c.partido.toLowerCase().includes(search.toLowerCase())
+        c.nome.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, associatedCandidates]);
 
@@ -131,7 +130,6 @@ export default function GerenciarCandidatosEleicaoPage() {
               <TableHead className="w-[80px]">Foto</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>Número</TableHead>
-              <TableHead>Partido</TableHead>
               <TableHead className="w-[80px] text-right">Ação</TableHead>
             </TableRow>
           </TableHeader>
@@ -146,7 +144,6 @@ export default function GerenciarCandidatosEleicaoPage() {
                 </TableCell>
                 <TableCell className="font-medium">{candidato.nome}</TableCell>
                 <TableCell>{candidato.numero}</TableCell>
-                <TableCell>{candidato.partido}</TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="icon" onClick={() => handleRemoveCandidate(candidato.id)}>
                     <UserX className="h-4 w-4 text-destructive" />
@@ -157,7 +154,7 @@ export default function GerenciarCandidatosEleicaoPage() {
             ))}
              {filteredAssociatedCandidates.length === 0 && (
                 <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                     Nenhum candidato associado a esta eleição.
                     </TableCell>
                 </TableRow>
@@ -180,7 +177,7 @@ export default function GerenciarCandidatosEleicaoPage() {
                         {availableCandidates.length > 0 ? (
                             availableCandidates.map(c => (
                                 <SelectItem key={c.id} value={c.id}>
-                                    {c.nome} ({c.partido})
+                                    {c.nome}
                                 </SelectItem>
                             ))
                         ) : (

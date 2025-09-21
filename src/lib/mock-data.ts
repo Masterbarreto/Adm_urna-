@@ -28,9 +28,9 @@ export const mockEleicoes: Eleicao[] = [
 ];
 
 export const mockCandidatos: Candidato[] = [
-    { id: 'CAND-01', nome: 'Fulano de Tal', numero: 10, partido: 'Partido da Inovação', fotoUrl: 'https://picsum.photos/seed/c1/200/200', eleicaoId: 'ELE-2024-PRES' },
-    { id: 'CAND-02', nome: 'Ciclana da Silva', numero: 20, partido: 'Partido do Futuro', fotoUrl: 'https://picsum.photos/seed/c2/200/200', eleicaoId: 'ELE-2024-PRES' },
-    { id: 'CAND-03', nome: 'Beltrano Souza', numero: 30, partido: 'Partido Democrático Digital', fotoUrl: 'https://picsum.photos/seed/c3/200/200', eleicaoId: 'ELE-2024-PRES' },
+    { id: 'CAND-01', nome: 'Fulano de Tal', numero: 10, fotoUrl: 'https://picsum.photos/seed/c1/200/200', eleicaoId: 'ELE-2024-PRES' },
+    { id: 'CAND-02', nome: 'Ciclana da Silva', numero: 20, fotoUrl: 'https://picsum.photos/seed/c2/200/200', eleicaoId: 'ELE-2024-PRES' },
+    { id: 'CAND-03', nome: 'Beltrano Souza', numero: 30, fotoUrl: 'https://picsum.photos/seed/c3/200/200', eleicaoId: 'ELE-2024-PRES' },
 ];
 
 export const mockEleitores: Eleitor[] = Array.from({ length: 50 }, (_, i) => ({

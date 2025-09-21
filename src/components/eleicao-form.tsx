@@ -253,7 +253,7 @@ export default function EleicaoForm({
                                 checked={field.value?.includes(candidato.id)}
                                 readOnly
                              />
-                            {candidato.nome} ({candidato.partido})
+                            {candidato.nome}
                           </div>
                         </SelectItem>
                       ))}

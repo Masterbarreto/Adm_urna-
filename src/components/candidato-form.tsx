@@ -31,7 +31,6 @@ import { Upload } from 'lucide-react';
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   numero: z.coerce.number().min(1, 'O número deve ser maior que zero.'),
-  partido: z.string().min(2, 'O partido deve ter pelo menos 2 caracteres.'),
   eleicaoId: z.string({ required_error: 'Selecione uma eleição.' }),
   fotoUrl: z.string().url('URL da foto inválida.').optional().or(z.literal('')),
 });
@@ -50,7 +49,6 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
     defaultValues: {
       nome: defaultValues?.nome || '',
       numero: defaultValues?.numero || undefined,
-      partido: defaultValues?.partido || '',
       eleicaoId: defaultValues?.eleicaoId || '',
       fotoUrl: defaultValues?.fotoUrl || '',
     },
@@ -120,40 +118,27 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
                         />
                         <FormField
                             control={form.control}
-                            name="partido"
+                            name="eleicaoId"
                             render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Partido</FormLabel>
-                                <FormControl>
-                                <Input placeholder="Partido Político" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
+                                <FormItem>
+                                    <FormLabel>Eleição</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecione a qual eleição o candidato pertence" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {mockEleicoes.map((eleicao: Eleicao) => (
+                                                <SelectItem key={eleicao.id} value={eleicao.id}>{eleicao.nome}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                     </div>
-                     <FormField
-                        control={form.control}
-                        name="eleicaoId"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Eleição</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selecione a qual eleição o candidato pertence" />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        {mockEleicoes.map((eleicao: Eleicao) => (
-                                            <SelectItem key={eleicao.id} value={eleicao.id}>{eleicao.nome}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                        />
                 </div>
             </div>
             
