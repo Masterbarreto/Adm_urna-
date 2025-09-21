@@ -45,6 +45,7 @@ export default function EditarCandidatoPage() {
       <PageHeader
         title="Editar Candidato"
         description="Atualize os dados do candidato."
+        backHref="/candidatos"
       />
       <CandidatoForm onSubmit={handleSubmit} defaultValues={candidato} />
     </div>

@@ -45,6 +45,7 @@ export default function EditarEleicaoPage() {
       <PageHeader
         title="Editar Eleição"
         description="Atualize os dados da eleição."
+        backHref="/eleicoes"
       />
       <EleicaoForm onSubmit={handleSubmit} defaultValues={eleicao} />
     </div>

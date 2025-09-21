@@ -45,6 +45,7 @@ export default function EditarUrnaPage() {
       <PageHeader
         title="Editar Urna"
         description="Atualize os dados da urna."
+        backHref="/urnas"
       />
       <UrnaForm onSubmit={handleSubmit} defaultValues={urna} />
     </div>

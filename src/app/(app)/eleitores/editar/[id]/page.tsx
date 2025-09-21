@@ -46,6 +46,7 @@ export default function EditarEleitorPage() {
       <PageHeader
         title="Editar Eleitor"
         description="Atualize os dados do eleitor."
+        backHref="/eleitores"
       />
       <EleitorForm onSubmit={handleSubmit} defaultValues={eleitor} />
     </div>
