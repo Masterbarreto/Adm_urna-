@@ -225,52 +225,43 @@ export default function EleicaoForm({
             <FormField
               control={form.control}
               name="candidatoIds"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Candidatos</FormLabel>
-                    <FormDescription>
-                      Selecione os candidatos que participarão desta eleição.
-                    </FormDescription>
-                  </div>
-                  <ScrollArea className="h-40 w-full rounded-md border p-4">
-                    {mockCandidatos.map((candidato) => (
-                      <FormField
-                        key={candidato.id}
-                        control={form.control}
-                        name="candidatoIds"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={candidato.id}
-                              className="flex flex-row items-start space-x-3 space-y-0"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(candidato.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([
-                                          ...(field.value || []),
-                                          candidato.id,
-                                        ])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== candidato.id
-                                          )
-                                        );
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal">
-                                {candidato.nome} ({candidato.partido})
-                              </FormLabel>
-                            </FormItem>
-                          );
-                        }}
-                      />
-                    ))}
-                  </ScrollArea>
+                  <FormLabel>Candidatos</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      const currentValues = field.value || [];
+                      if (currentValues.includes(value)) {
+                        field.onChange(currentValues.filter((v) => v !== value));
+                      } else {
+                        field.onChange([...currentValues, value]);
+                      }
+                    }}
+                    value={''}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione os candidatos" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {mockCandidatos.map((candidato: Candidato) => (
+                        <SelectItem key={candidato.id} value={candidato.id}>
+                          <div className="flex items-center">
+                            <Checkbox
+                                className="mr-2"
+                                checked={field.value?.includes(candidato.id)}
+                                readOnly
+                             />
+                            {candidato.nome} ({candidato.partido})
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Candidatos selecionados: {field.value?.length || 0}
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
