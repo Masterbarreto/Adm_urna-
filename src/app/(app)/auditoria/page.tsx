@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Calendar as CalendarIcon, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -37,6 +37,12 @@ const actionTypes = [...new Set(mockLogs.map(log => log.acao))];
 export default function AuditoriaPage() {
   const [actionFilter, setActionFilter] = useState('all');
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   const filteredLogs = useMemo(() => {
     return mockLogs.filter((log) => {
@@ -97,7 +103,7 @@ export default function AuditoriaPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredLogs.map((log: Log) => (
+            {isClient && filteredLogs.map((log: Log) => (
               <TableRow key={log.id}>
                 <TableCell>{format(new Date(log.data), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}</TableCell>
                 <TableCell><span className="font-mono text-sm">{log.acao}</span></TableCell>
