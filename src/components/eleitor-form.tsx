@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation';
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido. Use o formato XXX.XXX.XXX-XX.'),
-  tituloEleitor: z.string().regex(/^\d{12}$/, 'Título de eleitor inválido. Deve conter 12 dígitos.'),
+  matricula: z.string().min(1, 'A matrícula é obrigatória.'),
 });
 
 type EleitorFormValues = z.infer<typeof formSchema>;
@@ -38,7 +38,7 @@ export default function EleitorForm({ onSubmit, defaultValues }: EleitorFormProp
     defaultValues: {
       nome: defaultValues?.nome || '',
       cpf: defaultValues?.cpf || '',
-      tituloEleitor: defaultValues?.tituloEleitor || '',
+      matricula: defaultValues?.matricula || '',
     },
   });
 
@@ -77,12 +77,12 @@ export default function EleitorForm({ onSubmit, defaultValues }: EleitorFormProp
                 />
                 <FormField
                     control={form.control}
-                    name="tituloEleitor"
+                    name="matricula"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Título de Eleitor</FormLabel>
+                        <FormLabel>Matrícula</FormLabel>
                         <FormControl>
-                        <Input placeholder="0000 0000 0000" {...field} />
+                        <Input placeholder="000000000" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>

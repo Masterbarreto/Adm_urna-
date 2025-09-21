@@ -26,7 +26,7 @@ export type Eleitor = {
     id: string;
     nome: string;
     cpf: string;
-    tituloEleitor: string;
+    matricula: string;
 };
 
 export type Log = {

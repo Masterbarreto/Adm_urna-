@@ -37,7 +37,7 @@ export const mockEleitores: Eleitor[] = Array.from({ length: 50 }, (_, i) => ({
     id: `ELET-${String(i+1).padStart(4, '0')}`,
     nome: `Eleitor ${i + 1}`,
     cpf: `123.456.789-${String(i).padStart(2, '0')}`,
-    tituloEleitor: `1234 5678 90${String(i).padStart(2, '0')}`,
+    matricula: `987654${String(i).padStart(3, '0')}`,
 }));
 
 export const mockLogs: Log[] = [

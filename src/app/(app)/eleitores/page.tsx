@@ -51,7 +51,7 @@ export default function EleitoresPage() {
       (e) =>
         e.nome.toLowerCase().includes(search.toLowerCase()) ||
         e.cpf.includes(search) ||
-        e.tituloEleitor.includes(search)
+        e.matricula.includes(search)
     );
   }, [search]);
   
@@ -113,7 +113,7 @@ export default function EleitoresPage() {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>CPF</TableHead>
-              <TableHead>Título de Eleitor</TableHead>
+              <TableHead>Matrícula</TableHead>
               <TableHead>
                 <span className="sr-only">Ações</span>
               </TableHead>
@@ -124,7 +124,7 @@ export default function EleitoresPage() {
               <TableRow key={eleitor.id}>
                 <TableCell className="font-medium">{eleitor.nome}</TableCell>
                 <TableCell>{eleitor.cpf}</TableCell>
-                <TableCell>{eleitor.tituloEleitor}</TableCell>
+                <TableCell>{eleitor.matricula}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
