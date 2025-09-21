@@ -55,6 +55,18 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
   });
 
   const fotoUrl = form.watch('fotoUrl');
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        form.setValue('fotoUrl', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
 
   return (
     <Card>
@@ -69,6 +81,13 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
                             {form.getValues('nome')?.substring(0, 2).toUpperCase() || '?'}
                         </AvatarFallback>
                     </Avatar>
+                     <Button type="button" variant="outline" asChild>
+                        <label htmlFor="foto-upload" className="cursor-pointer">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Alterar Foto
+                        </label>
+                    </Button>
+                    <input type="file" id="foto-upload" className="hidden" accept="image/*" onChange={handleFileChange} />
                 </div>
 
                 <div className="md:col-span-2 space-y-6">
