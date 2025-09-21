@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "admin-avatar",
+      "description": "Avatar for admin user",
+      "imageUrl": "https://picsum.photos/seed/admin/40/40",
+      "imageHint": "person avatar"
+    },
+    {
+      "id": "candidate-1",
+      "description": "Photo of candidate one",
+      "imageUrl": "https://picsum.photos/seed/c1/200/200",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "candidate-2",
+      "description": "Photo of candidate two",
+      "imageUrl": "https://picsum.photos/seed/c2/200/200",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "candidate-3",
+      "description": "Photo of candidate three",
+      "imageUrl": "https://picsum.photos/seed/c3/200/200",
+      "imageHint": "person portrait"
+    }
+  ]
 }
