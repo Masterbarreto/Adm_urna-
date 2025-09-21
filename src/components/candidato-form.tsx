@@ -69,23 +69,6 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
                             {form.getValues('nome')?.substring(0, 2).toUpperCase() || '?'}
                         </AvatarFallback>
                     </Avatar>
-                    <FormField
-                        control={form.control}
-                        name="fotoUrl"
-                        render={({ field }) => (
-                        <FormItem className="w-full">
-                            <FormLabel>URL da Foto</FormLabel>
-                            <FormControl>
-                            <Input placeholder="https://exemplo.com/foto.jpg" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                     <Button type="button" variant="outline" className="w-full">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Carregar Imagem
-                    </Button>
                 </div>
 
                 <div className="md:col-span-2 space-y-6">
