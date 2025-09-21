@@ -1,3 +1,5 @@
+'use client';
+
 import { Download, Sigma, FileX, CircleSlash } from 'lucide-react';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -9,6 +11,7 @@ import {
 } from '@/components/ui/card';
 import { mockResultados } from '@/lib/mock-data';
 import ResultadosCharts from './charts';
+import { useToast } from '@/hooks/use-toast';
 
 const statItems = [
   {
@@ -29,13 +32,24 @@ const statItems = [
 ];
 
 export default function ResultadosPage() {
+  const { toast } = useToast();
+
+  const handleExport = () => {
+    // Simulação de exportação
+    toast({
+      title: "Exportação Iniciada",
+      description: "O seu relatório de resultados está sendo gerado e o download começará em breve.",
+    });
+    console.log("Exportando relatório...");
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader
         title="Resultados da Eleição"
         description="Visualize os resultados da eleição ativa em tempo real."
       >
-        <Button variant="outline">
+        <Button variant="outline" onClick={handleExport}>
           <Download className="mr-2 h-4 w-4" />
           Exportar Relatório
         </Button>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { MoreHorizontal, PlusCircle, Search, Upload } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Search, Upload, Trash2, Edit } from 'lucide-react';
 import Link from 'next/link';
 
 import PageHeader from '@/components/page-header';
@@ -20,14 +20,31 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { mockEleitores } from '@/lib/mock-data';
 import type { Eleitor } from '@/lib/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 export default function EleitoresPage() {
   const [search, setSearch] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [eleitorToDelete, setEleitorToDelete] = useState<Eleitor | null>(null);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const filteredEleitores = useMemo(() => {
     return mockEleitores.filter(
@@ -37,6 +54,27 @@ export default function EleitoresPage() {
         e.tituloEleitor.includes(search)
     );
   }, [search]);
+  
+  const handleDeleteClick = (eleitor: Eleitor) => {
+    setEleitorToDelete(eleitor);
+    setShowDeleteDialog(true);
+  };
+  
+  const handleConfirmDelete = () => {
+    if (eleitorToDelete) {
+      console.log('Removendo eleitor:', eleitorToDelete.id);
+      // Aqui você chamaria a API para remover
+      toast({
+        title: 'Eleitor Removido',
+        description: `O eleitor ${eleitorToDelete.nome} foi removido com sucesso.`,
+      });
+      setShowDeleteDialog(false);
+      setEleitorToDelete(null);
+      // Idealmente, você invalidaria o cache de dados aqui para forçar a atualização da lista
+      router.refresh();
+    }
+  };
+
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -55,13 +93,13 @@ export default function EleitoresPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Link href="/eleitores/importar">
+            <Link href="/eleitores/importar" passHref>
                 <Button variant="outline">
                     <Upload className="mr-2 h-4 w-4" />
                     Importar
                 </Button>
             </Link>
-            <Link href="/eleitores/novo">
+            <Link href="/eleitores/novo" passHref>
                 <Button>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Adicionar Eleitor
@@ -97,10 +135,17 @@ export default function EleitoresPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <Link href={`/eleitores/editar/${eleitor.id}`}>
-                        <DropdownMenuItem>Editar</DropdownMenuItem>
-                      </Link>
-                      <DropdownMenuItem className="text-destructive focus:text-destructive">Remover</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                         <Link href={`/eleitores/editar/${eleitor.id}`} className="flex items-center">
+                            <Edit className="mr-2 h-4 w-4"/>
+                            Editar
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleDeleteClick(eleitor)} className="text-destructive focus:text-destructive flex items-center">
+                        <Trash2 className="mr-2 h-4 w-4"/>
+                        Remover
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -116,7 +161,24 @@ export default function EleitoresPage() {
           </TableBody>
         </Table>
       </Card>
-      {/* TODO: Pagination */}
+      
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Essa ação não pode ser desfeita. Isso removerá permanentemente o eleitor
+              <span className="font-bold"> {eleitorToDelete?.nome} </span>
+              dos nossos servidores.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }
