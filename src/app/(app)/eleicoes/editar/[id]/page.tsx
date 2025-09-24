@@ -7,7 +7,7 @@ import type { Eleicao } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { format } from 'date-fns';
+import { formatISO } from 'date-fns';
 
 export default function EditarEleicaoPage() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function EditarEleicaoPage() {
       const fetchEleicao = async () => {
          try {
           const response = await api.get(`/v1/eleicoes/${eleicaoId}`);
-          setEleicao(response.data);
+          setEleicao(response.data.data);
         } catch (error) {
           console.error("Erro ao buscar eleição:", error);
           toast({
@@ -40,10 +40,11 @@ export default function EditarEleicaoPage() {
   const handleSubmit = async (data: any) => {
     try {
       const payload = {
-        nome: data.nome,
-        data_inicio: format(data.dataInicio, "yyyy-MM-dd'T'HH:mm:ss"),
-        data_fim: format(data.dataFim, "yyyy-MM-dd'T'HH:mm:ss"),
-        id_urna: parseInt(data.urnaId),
+        titulo: data.titulo,
+        descricao: data.descricao,
+        data_inicio: formatISO(data.dataInicio),
+        data_fim: formatISO(data.dataFim),
+        status: data.status,
       };
 
       await api.put(`/v1/eleicoes/${eleicaoId}`, payload);

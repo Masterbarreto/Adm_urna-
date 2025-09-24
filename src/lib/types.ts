@@ -8,10 +8,11 @@ export type Urna = {
 
 export type Eleicao = {
   id: number;
-  nome: string;
+  titulo: string;
+  descricao?: string;
   data_inicio: string;
   data_fim:string;
-  id_urna: number;
+  status: 'criada' | 'ativa' | 'finalizada' | 'cancelada';
 };
 
 export type Candidato = {

@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import type { Eleicao } from '@/lib/types';
 import {
   AlertDialog,
@@ -39,6 +40,13 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
 
+const statusVariant: { [key: string]: 'default' | 'secondary' | 'success' | 'destructive' } = {
+    criada: 'secondary',
+    ativa: 'success',
+    finalizada: 'default',
+    cancelada: 'destructive'
+}
+
 export default function EleicoesPage() {
   const [eleicoes, setEleicoes] = useState<Eleicao[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +58,7 @@ export default function EleicoesPage() {
       try {
         setLoading(true);
         const response = await api.get('/v1/eleicoes');
-        setEleicoes(response.data.data);
+        setEleicoes(response.data.data.eleicoes || []);
       } catch (error) {
         console.error("Erro ao buscar eleições:", error);
         toast({
@@ -78,7 +86,7 @@ export default function EleicoesPage() {
         await api.delete(`/v1/eleicoes/${eleicaoToDelete.id}`);
         toast({
           title: 'Eleição Removida',
-          description: `A eleição "${eleicaoToDelete.nome}" foi removida.`,
+          description: `A eleição "${eleicaoToDelete.titulo}" foi removida.`,
         });
         fetchEleicoes();
       } catch(error) {
@@ -112,10 +120,10 @@ export default function EleicoesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nome da Eleição</TableHead>
-              <TableHead>Data de Início</TableHead>
-              <TableHead>Data de Fim</TableHead>
-              <TableHead>Urna Associada</TableHead>
+              <TableHead>Título da Eleição</TableHead>
+              <TableHead>Início</TableHead>
+              <TableHead>Fim</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>
                 <span className="sr-only">Ações</span>
               </TableHead>
@@ -131,10 +139,14 @@ export default function EleicoesPage() {
             ) : eleicoes.length > 0 ? (
                 eleicoes.map((eleicao) => (
                 <TableRow key={eleicao.id}>
-                    <TableCell className="font-medium">{eleicao.nome}</TableCell>
+                    <TableCell className="font-medium">{eleicao.titulo}</TableCell>
                     <TableCell>{format(new Date(eleicao.data_inicio), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
                     <TableCell>{format(new Date(eleicao.data_fim), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
-                    <TableCell>{eleicao.id_urna}</TableCell>
+                    <TableCell>
+                        <Badge variant={statusVariant[eleicao.status] || 'default'}>
+                            {eleicao.status.charAt(0).toUpperCase() + eleicao.status.slice(1)}
+                        </Badge>
+                    </TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -184,7 +196,7 @@ export default function EleicoesPage() {
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
               Essa ação não pode ser desfeita. Isso removerá permanentemente a eleição
-              <span className="font-bold"> {eleicaoToDelete?.nome} </span>
+              <span className="font-bold"> {eleicaoToDelete?.titulo} </span>
               dos nossos servidores.
             </AlertDialogDescription>
           </AlertDialogHeader>

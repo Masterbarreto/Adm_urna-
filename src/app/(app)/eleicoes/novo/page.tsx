@@ -5,7 +5,7 @@ import PageHeader from '@/components/page-header';
 import EleicaoForm from '@/components/eleicao-form';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
-import { format } from 'date-fns';
+import { formatISO } from 'date-fns';
 
 export default function NovaEleicaoPage() {
   const router = useRouter();
@@ -13,12 +13,12 @@ export default function NovaEleicaoPage() {
 
   const handleSubmit = async (data: any) => {
     try {
-      // Formata a data no padrão que a API espera (YYYY-MM-DD HH:mm:ss)
       const payload = {
-        nome: data.nome,
-        data_inicio: format(data.dataInicio, "yyyy-MM-dd'T'HH:mm:ss"),
-        data_fim: format(data.dataFim, "yyyy-MM-dd'T'HH:mm:ss"),
-        id_urna: parseInt(data.urnaId),
+        titulo: data.titulo,
+        descricao: data.descricao,
+        data_inicio: formatISO(data.dataInicio),
+        data_fim: formatISO(data.dataFim),
+        status: data.status,
       };
 
       await api.post('/v1/eleicoes', payload);
