@@ -143,9 +143,9 @@ export default function UrnasPage() {
                     <TableCell className="font-medium">{urna.numero}</TableCell>
                     <TableCell>{urna.localizacao}</TableCell>
                     <TableCell>
-                    <Badge variant={urna.status === 'online' ? 'success' : 'destructive'}>
-                        {urna.status === 'online' ? <CheckCircle className="mr-1.5 h-4 w-4" /> : <XCircle className="mr-1.5 h-4 w-4" />}
-                        {urna.status === 'online' ? 'Online' : 'Offline'}
+                    <Badge variant={urna.status === 'ativa' ? 'success' : 'destructive'}>
+                        {urna.status === 'ativa' ? <CheckCircle className="mr-1.5 h-4 w-4" /> : <XCircle className="mr-1.5 h-4 w-4" />}
+                        {urna.status.charAt(0).toUpperCase() + urna.status.slice(1)}
                     </Badge>
                     </TableCell>
                     <TableCell>{urna.ultimaAtividade ? format(new Date(urna.ultimaAtividade), "dd/MM/yyyy HH:mm", { locale: ptBR }) : 'Nunca'}</TableCell>
