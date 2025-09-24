@@ -13,7 +13,11 @@ export default function NovoEleitorPage() {
 
   const handleSubmit = async (data: Omit<Eleitor, 'id'>) => {
     try {
-      await api.post('/v1/eleitores', data);
+      const payload = {
+        ...data,
+        cpf: data.cpf.replace(/\D/g, ''), // Garante que apenas dígitos são enviados
+      };
+      await api.post('/v1/eleitores', payload);
       toast({
         title: 'Eleitor Criado',
         description: 'O novo eleitor foi adicionado com sucesso.',

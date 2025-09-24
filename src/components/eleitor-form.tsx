@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
-  cpf: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido. Use o formato XXX.XXX.XXX-XX.'),
+  cpf: z.string().length(11, 'O CPF deve conter exatamente 11 dígitos.'),
   matricula: z.string().min(1, 'A matrícula é obrigatória.'),
 });
 
@@ -37,7 +37,7 @@ export default function EleitorForm({ onSubmit, defaultValues }: EleitorFormProp
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
-      cpf: defaultValues?.cpf || '',
+      cpf: defaultValues?.cpf?.replace(/\D/g, '') || '', // Remove formatting for editing
       matricula: defaultValues?.matricula || '',
     },
   });
@@ -67,9 +67,9 @@ export default function EleitorForm({ onSubmit, defaultValues }: EleitorFormProp
                     name="cpf"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>CPF</FormLabel>
+                        <FormLabel>CPF (somente números)</FormLabel>
                         <FormControl>
-                        <Input placeholder="000.000.000-00" {...field} />
+                        <Input placeholder="11122233344" {...field} maxLength={11} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>

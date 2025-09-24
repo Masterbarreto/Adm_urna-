@@ -38,7 +38,11 @@ export default function EditarEleitorPage() {
 
   const handleSubmit = async (data: Omit<Eleitor, 'id'>) => {
     try {
-        await api.put(`/v1/eleitores/${eleitorId}`, data);
+        const payload = {
+            ...data,
+            cpf: data.cpf.replace(/\D/g, ''), // Garante que apenas dígitos são enviados
+        };
+        await api.put(`/v1/eleitores/${eleitorId}`, payload);
         toast({
             title: 'Eleitor Atualizado',
             description: 'Os dados do eleitor foram atualizados com sucesso.',
