@@ -7,7 +7,7 @@ import type { Eleicao } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { formatISO } from 'date-fns';
+import { format } from 'date-fns';
 
 export default function EditarEleicaoPage() {
   const router = useRouter();
@@ -41,8 +41,8 @@ export default function EditarEleicaoPage() {
     try {
       const payload = {
         nome: data.nome,
-        data_inicio: formatISO(data.dataInicio),
-        data_fim: formatISO(data.dataFim),
+        data_inicio: format(data.dataInicio, "yyyy-MM-dd'T'HH:mm:ss"),
+        data_fim: format(data.dataFim, "yyyy-MM-dd'T'HH:mm:ss"),
         id_urna: parseInt(data.urnaId),
       };
 
@@ -54,11 +54,12 @@ export default function EditarEleicaoPage() {
       });
       router.push('/eleicoes');
       router.refresh();
-    } catch(error) {
+    } catch(error: any) {
       console.error("Erro ao atualizar eleição:", error);
+       const apiError = error.response?.data?.message || 'Não foi possível atualizar os dados da eleição.';
        toast({
           title: 'Erro ao atualizar',
-          description: 'Não foi possível atualizar os dados da eleição.',
+          description: apiError,
           variant: 'destructive'
         });
     }

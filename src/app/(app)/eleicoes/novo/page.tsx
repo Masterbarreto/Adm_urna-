@@ -5,8 +5,7 @@ import PageHeader from '@/components/page-header';
 import EleicaoForm from '@/components/eleicao-form';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
-import type { Eleicao } from '@/lib/types';
-import { formatISO } from 'date-fns';
+import { format } from 'date-fns';
 
 export default function NovaEleicaoPage() {
   const router = useRouter();
@@ -14,10 +13,11 @@ export default function NovaEleicaoPage() {
 
   const handleSubmit = async (data: any) => {
     try {
+      // Formata a data no padrão que a API espera (YYYY-MM-DD HH:mm:ss)
       const payload = {
         nome: data.nome,
-        data_inicio: formatISO(data.dataInicio),
-        data_fim: formatISO(data.dataFim),
+        data_inicio: format(data.dataInicio, "yyyy-MM-dd'T'HH:mm:ss"),
+        data_fim: format(data.dataFim, "yyyy-MM-dd'T'HH:mm:ss"),
         id_urna: parseInt(data.urnaId),
       };
 
@@ -29,11 +29,12 @@ export default function NovaEleicaoPage() {
       });
       router.push('/eleicoes');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar eleição:', error);
+      const apiError = error.response?.data?.message || 'Não foi possível criar a eleição. Verifique os dados e tente novamente.';
       toast({
         title: 'Erro ao Criar',
-        description: 'Não foi possível criar a eleição. Verifique os dados e tente novamente.',
+        description: apiError,
         variant: 'destructive',
       });
     }
