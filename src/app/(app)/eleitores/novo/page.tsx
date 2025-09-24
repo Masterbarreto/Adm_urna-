@@ -24,11 +24,12 @@ export default function NovoEleitorPage() {
       });
       router.push('/eleitores');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao criar eleitor:', error);
+      const apiError = error.response?.data?.message || 'Não foi possível adicionar o eleitor. Verifique os dados.';
       toast({
         title: 'Erro ao Criar',
-        description: 'Não foi possível adicionar o eleitor. Verifique os dados.',
+        description: apiError,
         variant: 'destructive'
       });
     }

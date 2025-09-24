@@ -22,7 +22,7 @@ export default function EditarEleitorPage() {
         try {
           const response = await api.get(`/v1/eleitores/${eleitorId}`);
           setEleitor(response.data);
-        } catch (error) {
+        } catch (error)
           console.error("Erro ao buscar eleitor:", error);
           toast({
             title: 'Erro ao carregar eleitor',
@@ -49,11 +49,12 @@ export default function EditarEleitorPage() {
         });
         router.push('/eleitores');
         router.refresh();
-    } catch(error) {
+    } catch(error: any) {
         console.error('Erro ao atualizar eleitor:', error);
+        const apiError = error.response?.data?.message || 'Não foi possível atualizar os dados do eleitor.';
         toast({
             title: 'Erro ao Atualizar',
-            description: 'Não foi possível atualizar os dados do eleitor.',
+            description: apiError,
             variant: 'destructive'
         });
     }
