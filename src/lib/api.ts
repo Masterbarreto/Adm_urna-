@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/api/v1',
+  baseURL: '/api',
 });
 
 // Interceptor para incluir o token de autenticação em todas as requisições
