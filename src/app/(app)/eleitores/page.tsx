@@ -72,7 +72,7 @@ export default function EleitoresPage() {
     }, 300); // Debounce para evitar muitas requisições enquanto digita
 
     return () => clearTimeout(delayDebounceFn);
-  }, [search]);
+  }, [search, toast]);
 
   const handleDeleteClick = (eleitor: Eleitor) => {
     setEleitorToDelete(eleitor);
