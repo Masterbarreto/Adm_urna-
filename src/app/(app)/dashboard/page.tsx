@@ -52,7 +52,7 @@ export default function DashboardPage() {
     async function fetchSummary() {
       try {
         setLoading(true);
-        const response = await api.get('/dashboard/summary');
+        const response = await api.get('/v1/dashboard/summary');
         setSummary(response.data);
       } catch (error) {
         console.error("Erro ao buscar resumo do dashboard:", error);
