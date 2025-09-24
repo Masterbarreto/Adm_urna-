@@ -37,10 +37,10 @@ const formSchema = z.object({
   foto: z.any().optional(),
 });
 
-type CandidatoFormValues = z.infer<typeof formSchema>;
+export type CandidatoFormValues = z.infer<typeof formSchema>;
 
 type CandidatoFormProps = {
-  onSubmit: (data: FormData) => void;
+  onSubmit: (data: CandidatoFormValues) => void;
   defaultValues?: Partial<Candidato>;
   isEditing?: boolean;
 };
@@ -54,9 +54,9 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
-      numero: defaultValues?.numero || '',
+      numero: defaultValues?.numero || undefined,
       partido: defaultValues?.partido || '',
-      id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : '',
+      id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : undefined,
     },
   });
 
@@ -87,17 +87,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
   };
   
   const handleFormSubmit = (values: CandidatoFormValues) => {
-    const formData = new FormData();
-    formData.append('nome', values.nome);
-    formData.append('numero', String(values.numero));
-    if (values.partido) {
-      formData.append('partido', values.partido);
-    }
-    formData.append('id_eleicao', values.id_eleicao);
-    if (values.foto) {
-      formData.append('foto', values.foto);
-    }
-    onSubmit(formData);
+    onSubmit(values);
   };
 
 

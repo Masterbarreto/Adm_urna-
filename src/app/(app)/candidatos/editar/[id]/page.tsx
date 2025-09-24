@@ -7,6 +7,8 @@ import type { Candidato } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
+import type { CandidatoFormValues } from '@/components/candidato-form';
+
 
 export default function EditarCandidatoPage() {
   const router = useRouter();
@@ -36,13 +38,34 @@ export default function EditarCandidatoPage() {
   }, [candidatoId, toast]);
 
 
-  const handleSubmit = async (data: FormData) => {
+  const handleSubmit = async (data: CandidatoFormValues) => {
     try {
-        await api.put(`/v1/candidatos/${candidatoId}`, data, {
-            headers: {
-            'Content-Type': 'multipart/form-data',
-            },
-        });
+       // Se houver uma foto (que é um objeto File), use FormData.
+        if (data.foto && typeof data.foto === 'object') {
+            const formData = new FormData();
+            formData.append('nome', data.nome);
+            formData.append('numero', String(data.numero));
+            if (data.partido) formData.append('partido', data.partido);
+            formData.append('id_eleicao', data.id_eleicao);
+            formData.append('foto', data.foto);
+
+            // A API de update pode não suportar multipart, mas se suportar, o header é necessário
+            await api.put(`/v1/candidatos/${candidatoId}`, formData, {
+                headers: {
+                'Content-Type': 'multipart/form-data',
+                },
+            });
+        } else {
+             // Caso contrário, envie como JSON, removendo a propriedade 'foto'
+            const payload = {
+                nome: data.nome,
+                numero: data.numero,
+                partido: data.partido,
+                id_eleicao: data.id_eleicao,
+            };
+            await api.put(`/v1/candidatos/${candidatoId}`, payload);
+        }
+
         toast({
             title: 'Candidato Atualizado',
             description: 'Os dados do candidato foram atualizados com sucesso.',
