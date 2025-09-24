@@ -85,7 +85,7 @@ export default function EleicaoForm({
     const fetchData = async () => {
       try {
         const urnasRes = await api.get('/v1/urnas');
-        setUrnas(urnasRes.data.data);
+        setUrnas(urnasRes.data.data.urnas || []);
       } catch (error) {
         console.error("Erro ao buscar dados para o formulário:", error);
       }
@@ -215,7 +215,7 @@ export default function EleicaoForm({
                     <SelectContent>
                       {urnas.length > 0 ? urnas.map((urna: Urna) => (
                         <SelectItem key={urna.id} value={String(urna.id)}>
-                          {urna.nome} ({urna.id})
+                          Nº {urna.numero} - {urna.localizacao}
                         </SelectItem>
                       )) : <p className="p-4 text-sm text-muted-foreground">Nenhuma urna disponível</p>}
                     </SelectContent>
