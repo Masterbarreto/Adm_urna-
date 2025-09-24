@@ -23,7 +23,7 @@ export default function EditarUrnaPage() {
         try {
           setLoading(true);
           const response = await api.get(`/v1/urnas/${urnaId}`);
-          setUrna(response.data);
+          setUrna(response.data.data);
         } catch (error) {
           console.error("Erro ao buscar urna:", error);
           toast({
@@ -57,7 +57,9 @@ export default function EditarUrnaPage() {
        console.error("Erro ao atualizar urna:", error);
        toast({
           title: 'Erro ao atualizar',
-          description: error.response?.data?.message || 'Não foi possível atualizar os dados da urna.',
+          description: error.response?.status === 409
+            ? 'Já existe uma urna com este número. Por favor, escolha outro.'
+            : error.response?.data?.message || 'Não foi possível atualizar os dados da urna.',
           variant: 'destructive'
         });
     }
