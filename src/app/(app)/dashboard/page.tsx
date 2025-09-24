@@ -53,7 +53,7 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         const response = await api.get('/v1/dashboard/summary');
-        setSummary(response.data);
+        setSummary(response.data.data);
       } catch (error) {
         console.error("Erro ao buscar resumo do dashboard:", error);
         toast({
@@ -83,7 +83,7 @@ export default function DashboardPage() {
     },
     {
       title: 'Total de Votos',
-      value: summary?.totalVotos.toLocaleString('pt-BR') || '0',
+      value: summary?.totalVotos?.toLocaleString('pt-BR') ?? '0',
       icon: VoteIcon,
       color: 'text-foreground',
     },
