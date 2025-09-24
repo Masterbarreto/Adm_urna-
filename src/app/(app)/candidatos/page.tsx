@@ -51,9 +51,12 @@ export default function CandidatosPage() {
       try {
         setLoading(true);
         const response = await api.get('/v1/candidatos');
-        setCandidatos(response.data.data);
+        // A API pode retornar os candidatos dentro de response.data.data.candidatos ou similar
+        const candidatesData = response.data?.data?.candidatos || response.data?.data || [];
+        setCandidatos(Array.isArray(candidatesData) ? candidatesData : []);
       } catch (error) {
         console.error("Erro ao buscar candidatos:", error);
+        setCandidatos([]); // Garante que seja um array em caso de erro
         toast({
           title: 'Erro ao carregar',
           description: 'Não foi possível buscar a lista de candidatos.',
@@ -70,7 +73,7 @@ export default function CandidatosPage() {
 
 
   const filteredCandidatos = useMemo(() => {
-    if (!candidatos) return [];
+    if (!Array.isArray(candidatos)) return [];
     return candidatos.filter(
       (c) =>
         c.nome.toLowerCase().includes(search.toLowerCase()) ||
