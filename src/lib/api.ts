@@ -19,4 +19,23 @@ api.interceptors.request.use(async (config) => {
   return Promise.reject(error);
 });
 
+
+// Interceptor para tratar erros de autenticação (401)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('authToken');
+        // Evita redirecionamentos em loop se a própria página de login falhar
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 export default api;
