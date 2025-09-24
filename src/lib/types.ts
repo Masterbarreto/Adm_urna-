@@ -1,3 +1,4 @@
+
 export type Urna = {
   id: number;
   numero: string;
@@ -19,10 +20,8 @@ export type Candidato = {
     id: string;
     nome: string;
     numero: string;
-    partido: string;
     foto_url: string;
     id_eleicao: string;
-    total_votos?: number;
 };
 
 export type Eleitor = {

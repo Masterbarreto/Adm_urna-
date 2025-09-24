@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -51,12 +52,11 @@ export default function CandidatosPage() {
       try {
         setLoading(true);
         const response = await api.get('/v1/candidatos');
-        // A API pode retornar os candidatos dentro de response.data.data.candidatos ou similar
         const candidatesData = response.data?.data?.candidatos || response.data?.data || [];
         setCandidatos(Array.isArray(candidatesData) ? candidatesData : []);
       } catch (error) {
         console.error("Erro ao buscar candidatos:", error);
-        setCandidatos([]); // Garante que seja um array em caso de erro
+        setCandidatos([]); 
         toast({
           title: 'Erro ao carregar',
           description: 'Não foi possível buscar a lista de candidatos.',

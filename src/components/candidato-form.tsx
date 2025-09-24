@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -32,7 +33,6 @@ import api from '@/lib/api';
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   numero: z.string().min(1, 'O número é obrigatório.'),
-  partido: z.string().optional(),
   id_eleicao: z.string({ required_error: 'Selecione uma eleição.' }),
   foto: z.any().optional(),
 });
@@ -55,7 +55,6 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     defaultValues: {
       nome: defaultValues?.nome || '',
       numero: defaultValues?.numero || '',
-      partido: defaultValues?.partido || '',
       id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : undefined,
     },
   });
@@ -128,34 +127,19 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
                         </FormItem>
                         )}
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="numero"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Número</FormLabel>
-                                <FormControl>
-                                <Input type="text" placeholder="00" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="partido"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Partido (Opcional)</FormLabel>
-                                <FormControl>
-                                <Input placeholder="Nome do Partido" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                    </div>
+                    <FormField
+                        control={form.control}
+                        name="numero"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Número</FormLabel>
+                            <FormControl>
+                            <Input type="text" placeholder="00" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                      <FormField
                         control={form.control}
                         name="id_eleicao"
