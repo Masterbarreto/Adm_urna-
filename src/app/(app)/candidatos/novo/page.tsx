@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import PageHeader from '@/components/page-header';
 import CandidatoForm from '@/components/candidato-form';
-import type { Candidato } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
 
@@ -11,27 +10,20 @@ export default function NovoCandidatoPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const handleSubmit = async (data: Omit<Candidato, 'id' | 'eleicaoId'> & { eleicaoId: string }) => {
+  const handleSubmit = async (data: FormData) => {
     try {
-      // Sua API espera `id_eleicao` e não `eleicaoId`
-      const payload = {
-        nome: data.nome,
-        numero: data.numero,
-        id_eleicao: data.eleicaoId,
-        foto_url: data.fotoUrl,
-      };
-
-      // O endpoint de criação na sua API parece estar em /candidatos
-      // O ideal seria enviar a imagem como multipart/form-data
-      // mas vamos enviar a URL por enquanto
-      await api.post('/candidatos', payload);
+      await api.post('/candidatos', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       
       toast({
         title: 'Candidato Criado',
         description: 'O novo candidato foi adicionado com sucesso.',
       });
       router.push('/candidatos');
-      router.refresh(); // Força a atualização da lista
+      router.refresh();
     } catch (error) {
       console.error('Erro ao criar candidato:', error);
       toast({
@@ -47,6 +39,7 @@ export default function NovoCandidatoPage() {
       <PageHeader
         title="Adicionar Novo Candidato"
         description="Preencha os dados para registrar um novo candidato."
+        backHref="/candidatos"
       />
       <CandidatoForm onSubmit={handleSubmit} />
     </div>

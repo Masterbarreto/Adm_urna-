@@ -36,7 +36,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 
 export default function EleitoresPage() {
@@ -46,14 +45,15 @@ export default function EleitoresPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [eleitorToDelete, setEleitorToDelete] = useState<Eleitor | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
 
-  useEffect(() => {
-    async function fetchEleitores() {
+  const fetchEleitores = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/eleitores');
-        setEleitores(response.data);
+        // A API usa `search` para buscar, então vamos passar o valor do estado
+        const response = await api.get('/eleitores', {
+          params: { search: search, page: 1, limit: 20 } // Adicionando paginação básica
+        });
+        setEleitores(response.data.data);
       } catch (error) {
         console.error("Erro ao buscar eleitores:", error);
         toast({
@@ -65,18 +65,15 @@ export default function EleitoresPage() {
         setLoading(false);
       }
     }
-    fetchEleitores();
-  }, [toast]);
 
-  const filteredEleitores = useMemo(() => {
-    return eleitores.filter(
-      (e) =>
-        e.nome.toLowerCase().includes(search.toLowerCase()) ||
-        e.cpf.includes(search) ||
-        e.matricula.includes(search)
-    );
-  }, [search, eleitores]);
-  
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchEleitores();
+    }, 300); // Debounce para evitar muitas requisições enquanto digita
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [search]);
+
   const handleDeleteClick = (eleitor: Eleitor) => {
     setEleitorToDelete(eleitor);
     setShowDeleteDialog(true);
@@ -84,16 +81,24 @@ export default function EleitoresPage() {
   
   const handleConfirmDelete = async () => {
     if (eleitorToDelete) {
-      // Sua API não tem um endpoint de deleção (DELETE /eleitores/{id})
-      // Adicione um no backend para esta funcionalidade operar.
-      console.log('Removendo eleitor (simulação):', eleitorToDelete.id);
-      toast({
-        title: 'Funcionalidade Indisponível',
-        description: `A API não possui um endpoint para remover eleitores. Ação simulada.`,
-        variant: 'destructive'
-      });
-      setShowDeleteDialog(false);
-      setEleitorToDelete(null);
+      try {
+        await api.delete(`/eleitores/${eleitorToDelete.id}`);
+        toast({
+          title: 'Eleitor Removido',
+          description: `O eleitor ${eleitorToDelete.nome} foi removido.`,
+        });
+        fetchEleitores();
+      } catch(error) {
+        console.error("Erro ao remover eleitor:", error);
+        toast({
+          title: 'Erro ao remover',
+          description: 'Não foi possível remover o eleitor.',
+          variant: 'destructive'
+        });
+      } finally {
+        setShowDeleteDialog(false);
+        setEleitorToDelete(null);
+      }
     }
   };
 
@@ -109,7 +114,7 @@ export default function EleitoresPage() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Buscar eleitor..."
+                placeholder="Buscar por nome, CPF, matrícula..."
                 className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -148,8 +153,8 @@ export default function EleitoresPage() {
                         Carregando eleitores...
                     </TableCell>
                 </TableRow>
-            ) : filteredEleitores.length > 0 ? (
-              filteredEleitores.slice(0, 10).map((eleitor: Eleitor) => ( // Limiting to 10 for display
+            ) : eleitores.length > 0 ? (
+              eleitores.map((eleitor: Eleitor) => (
               <TableRow key={eleitor.id}>
                 <TableCell className="font-medium">{eleitor.nome}</TableCell>
                 <TableCell>{eleitor.cpf}</TableCell>

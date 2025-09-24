@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { MoreHorizontal, PlusCircle, Search, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -47,14 +46,12 @@ export default function CandidatosPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [candidateToDelete, setCandidateToDelete] = useState<Candidato | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
 
-  useEffect(() => {
-    async function fetchCandidatos() {
+  const fetchCandidatos = async () => {
       try {
         setLoading(true);
         const response = await api.get('/candidatos');
-        setCandidatos(response.data);
+        setCandidatos(response.data.data);
       } catch (error) {
         console.error("Erro ao buscar candidatos:", error);
         toast({
@@ -66,15 +63,17 @@ export default function CandidatosPage() {
         setLoading(false);
       }
     }
+
+  useEffect(() => {
     fetchCandidatos();
-  }, [toast]);
+  }, []);
 
 
   const filteredCandidatos = useMemo(() => {
     return candidatos.filter(
       (c) =>
         c.nome.toLowerCase().includes(search.toLowerCase()) ||
-        c.numero.toString().includes(search)
+        String(c.numero).includes(search)
     );
   }, [search, candidatos]);
 
@@ -85,16 +84,24 @@ export default function CandidatosPage() {
 
   const handleConfirmDelete = async () => {
     if (candidateToDelete) {
-      // Sua API não tem um endpoint de deleção (DELETE /candidatos/{id})
-      // Adicione um no backend para esta funcionalidade operar.
-      console.log('Removendo candidato (simulação):', candidateToDelete.id);
-      toast({
-        title: 'Funcionalidade Indisponível',
-        description: `A API não possui um endpoint para remover candidatos. Ação simulada.`,
-        variant: 'destructive'
-      });
-      setShowDeleteDialog(false);
-      setCandidateToDelete(null);
+       try {
+        await api.delete(`/candidatos/${candidateToDelete.id}`);
+        toast({
+          title: 'Candidato Removido',
+          description: `O candidato ${candidateToDelete.nome} foi removido com sucesso.`,
+        });
+        fetchCandidatos(); // Atualiza a lista
+      } catch (error) {
+         console.error("Erro ao remover candidato:", error);
+         toast({
+          title: 'Erro ao remover',
+          description: `Não foi possível remover o candidato.`,
+          variant: 'destructive'
+        });
+      } finally {
+        setShowDeleteDialog(false);
+        setCandidateToDelete(null);
+      }
     }
   };
 
@@ -148,7 +155,7 @@ export default function CandidatosPage() {
               <TableRow key={candidato.id}>
                 <TableCell>
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={candidato.fotoUrl} alt={candidato.nome} data-ai-hint="person portrait" />
+                    <AvatarImage src={candidato.foto_url} alt={candidato.nome} data-ai-hint="person portrait" />
                     <AvatarFallback>{candidato.nome.substring(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                 </TableCell>

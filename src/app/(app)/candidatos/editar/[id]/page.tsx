@@ -20,12 +20,8 @@ export default function EditarCandidatoPage() {
     if (candidatoId) {
       const fetchCandidato = async () => {
         try {
-          // Sua API não tem um endpoint para buscar um candidato por ID,
-          // então vamos buscar todos e filtrar.
-          // O ideal seria ter um GET /candidatos/{id}
-          const response = await api.get('/candidatos');
-          const candidatoParaEditar = response.data.find((c: Candidato) => c.id === Number(candidatoId)) || null;
-          setCandidato(candidatoParaEditar);
+          const response = await api.get(`/candidatos/${candidatoId}`);
+          setCandidato(response.data);
         } catch (error) {
           console.error("Erro ao buscar candidato:", error);
           toast({
@@ -40,22 +36,33 @@ export default function EditarCandidatoPage() {
   }, [candidatoId, toast]);
 
 
-  const handleSubmit = async (data: Omit<Candidato, 'id' | 'eleicaoId'> & { eleicaoId: string }) => {
-    // Sua API não tem um endpoint de atualização (PUT /candidatos/{id})
-    // Adicione um no backend para esta funcionalidade operar.
-    console.log('Candidato atualizado (simulação):', { id: candidatoId, ...data });
-    toast({
-      title: 'Funcionalidade Indisponível',
-      description: 'A API não possui um endpoint para atualizar candidatos. Ação simulada.',
-      variant: 'destructive'
-    });
-    router.push('/candidatos');
+  const handleSubmit = async (data: FormData) => {
+    try {
+        await api.put(`/candidatos/${candidatoId}`, data, {
+            headers: {
+            'Content-Type': 'multipart/form-data',
+            },
+        });
+        toast({
+            title: 'Candidato Atualizado',
+            description: 'Os dados do candidato foram atualizados com sucesso.',
+        });
+        router.push('/candidatos');
+        router.refresh();
+    } catch (error) {
+        console.error('Erro ao atualizar candidato:', error);
+        toast({
+            title: 'Erro ao Atualizar',
+            description: 'Não foi possível atualizar o candidato.',
+            variant: 'destructive',
+        });
+    }
   };
   
   if (!candidato) {
     return (
         <div className="p-4 sm:p-6 lg:p-8">
-            <PageHeader title="Carregando..." />
+            <PageHeader title="Carregando..." backHref="/candidatos"/>
             <p>Carregando dados do candidato...</p>
         </div>
     )
@@ -68,7 +75,7 @@ export default function EditarCandidatoPage() {
         description="Atualize os dados do candidato."
         backHref="/candidatos"
       />
-      <CandidatoForm onSubmit={handleSubmit} defaultValues={candidato} />
+      <CandidatoForm onSubmit={handleSubmit} defaultValues={candidato} isEditing />
     </div>
   );
 }

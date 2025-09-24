@@ -4,17 +4,19 @@ const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-// Você pode adicionar um interceptor para incluir o token de autenticação
-// em todas as requisições, depois que a tela de login for implementada.
-// Exemplo:
-/*
+// Interceptor para incluir o token de autenticação em todas as requisições
 api.interceptors.request.use(async (config) => {
-  const token = localStorage.getItem('authToken'); // ou de onde quer que você armazene
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // A lógica de "sessão" (localstorage, etc.) não funciona bem em Server Components
+  // mas como os componentes que usam a API são 'use client', podemos usar o localStorage.
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
-*/
 
 export default api;

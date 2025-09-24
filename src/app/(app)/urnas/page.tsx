@@ -12,7 +12,6 @@ import {
 import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -54,22 +53,12 @@ export default function UrnasPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [urnaToDelete, setUrnaToDelete] = useState<Urna | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
 
-  useEffect(() => {
-    async function fetchUrnas() {
-      // Sua API não tem uma rota para buscar urnas, vamos simular
-      // uma lista vazia. Crie um endpoint GET /urnas no backend.
+  const fetchUrnas = async () => {
       try {
         setLoading(true);
-        // const response = await api.get('/urnas');
-        // setUrnas(response.data);
-        setUrnas([]); // Simulado
-         toast({
-          title: 'Funcionalidade Indisponível',
-          description: 'A API não possui um endpoint para listar urnas. Exibindo lista vazia.',
-          variant: 'destructive',
-        });
+        const response = await api.get('/urnas');
+        setUrnas(response.data.data); // A API retorna os dados dentro de uma chave "data"
       } catch (error) {
         console.error("Erro ao buscar urnas:", error);
         toast({
@@ -81,25 +70,36 @@ export default function UrnasPage() {
         setLoading(false);
       }
     }
+
+  useEffect(() => {
     fetchUrnas();
-  }, [toast]);
+  }, []);
   
   const handleDeleteClick = (urna: Urna) => {
     setUrnaToDelete(urna);
     setShowDeleteDialog(true);
   };
   
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (urnaToDelete) {
-      // Sua API não tem um endpoint de deleção (DELETE /urnas/{id})
-      console.log('Removendo urna (simulação):', urnaToDelete.id);
-      toast({
-        title: 'Funcionalidade Indisponível',
-        description: `A API não possui um endpoint para remover urnas. Ação simulada.`,
-        variant: 'destructive'
-      });
-      setShowDeleteDialog(false);
-      setUrnaToDelete(null);
+      try {
+        await api.delete(`/urnas/${urnaToDelete.id}`);
+        toast({
+          title: 'Urna Removida',
+          description: `A urna ${urnaToDelete.nome} foi removida com sucesso.`,
+        });
+        fetchUrnas(); // Atualiza a lista
+      } catch (error) {
+         console.error("Erro ao remover urna:", error);
+         toast({
+          title: 'Erro ao remover',
+          description: `Não foi possível remover a urna.`,
+          variant: 'destructive'
+        });
+      } finally {
+        setShowDeleteDialog(false);
+        setUrnaToDelete(null);
+      }
     }
   };
 
@@ -150,7 +150,7 @@ export default function UrnasPage() {
                         {urna.status === 'online' ? 'Online' : 'Offline'}
                     </Badge>
                     </TableCell>
-                    <TableCell>{format(new Date(urna.ultimaAtividade), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
+                    <TableCell>{urna.ultimaAtividade ? format(new Date(urna.ultimaAtividade), "dd/MM/yyyy HH:mm", { locale: ptBR }) : 'Nunca'}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

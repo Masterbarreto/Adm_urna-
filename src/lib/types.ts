@@ -9,17 +9,17 @@ export type Urna = {
 export type Eleicao = {
   id: number;
   nome: string;
-  dataInicio: string;
-  dataFim:string;
-  urnaId: number;
+  data_inicio: string;
+  data_fim:string;
+  id_urna: number;
 };
 
 export type Candidato = {
     id: number;
     nome: string;
     numero: number;
-    fotoUrl: string;
-    eleicaoId: number;
+    foto_url: string;
+    id_eleicao: number;
 };
 
 export type Eleitor = {

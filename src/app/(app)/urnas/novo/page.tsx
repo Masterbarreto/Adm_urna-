@@ -13,17 +13,14 @@ export default function NovaUrnaPage() {
 
   const handleSubmit = async (data: Omit<Urna, 'id' | 'status' | 'ultimaAtividade'>) => {
     try {
-      // Sua API não parece ter um endpoint para criar urnas,
-      // será necessário criá-lo no backend.
-      // await api.post('/urnas', data);
+      await api.post('/urnas', data);
       
-      console.log('Nova urna (simulação):', data);
       toast({
-        title: 'Funcionalidade Indisponível',
-        description: 'A API não possui um endpoint para criar urnas. Ação simulada.',
-        variant: 'destructive',
+        title: 'Urna Criada',
+        description: 'A nova urna foi registrada com sucesso.',
       });
       router.push('/urnas');
+      router.refresh();
     } catch(error) {
         console.error('Erro ao criar urna:', error);
         toast({
@@ -39,6 +36,7 @@ export default function NovaUrnaPage() {
       <PageHeader
         title="Adicionar Nova Urna"
         description="Preencha os dados para registrar uma nova urna."
+        backHref="/urnas"
       />
       <UrnaForm onSubmit={handleSubmit} />
     </div>

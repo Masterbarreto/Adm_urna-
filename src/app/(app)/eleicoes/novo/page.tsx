@@ -5,6 +5,8 @@ import PageHeader from '@/components/page-header';
 import EleicaoForm from '@/components/eleicao-form';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
+import type { Eleicao } from '@/lib/types';
+import { formatISO } from 'date-fns';
 
 export default function NovaEleicaoPage() {
   const router = useRouter();
@@ -12,13 +14,11 @@ export default function NovaEleicaoPage() {
 
   const handleSubmit = async (data: any) => {
     try {
-      // Ajustando o payload para o que a sua API espera
       const payload = {
         nome: data.nome,
-        data_inicio: data.dataInicio,
-        data_fim: data.dataFim,
-        id_urna: data.urnaId,
-        // O campo `candidatoIds` não parece ser aceito pela sua API na criação da eleição
+        data_inicio: formatISO(data.dataInicio),
+        data_fim: formatISO(data.dataFim),
+        id_urna: parseInt(data.urnaId),
       };
 
       await api.post('/eleicoes', payload);
@@ -28,7 +28,7 @@ export default function NovaEleicaoPage() {
         description: 'A nova eleição foi criada com sucesso.',
       });
       router.push('/eleicoes');
-      router.refresh(); // Força a atualização da lista de eleições
+      router.refresh();
     } catch (error) {
       console.error('Erro ao criar eleição:', error);
       toast({
@@ -44,6 +44,7 @@ export default function NovaEleicaoPage() {
       <PageHeader
         title="Criar Nova Eleição"
         description="Preencha os dados para agendar uma nova eleição."
+        backHref="/eleicoes"
       />
       <EleicaoForm onSubmit={handleSubmit} />
     </div>

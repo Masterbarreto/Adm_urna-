@@ -35,6 +35,7 @@ export default function NovoEleitorPage() {
       <PageHeader
         title="Adicionar Novo Eleitor"
         description="Preencha os dados para registrar um novo eleitor."
+        backHref="/eleitores"
       />
       <EleitorForm onSubmit={handleSubmit} />
     </div>

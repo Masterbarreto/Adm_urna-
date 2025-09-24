@@ -32,28 +32,29 @@ import api from '@/lib/api';
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   numero: z.coerce.number().min(1, 'O número deve ser maior que zero.'),
-  eleicaoId: z.string({ required_error: 'Selecione uma eleição.' }),
-  fotoUrl: z.string().url('URL da foto inválida.').optional().or(z.literal('')),
+  id_eleicao: z.string({ required_error: 'Selecione uma eleição.' }),
+  foto: z.any().optional(),
 });
 
 type CandidatoFormValues = z.infer<typeof formSchema>;
 
 type CandidatoFormProps = {
-  onSubmit: (data: CandidatoFormValues) => void;
+  onSubmit: (data: FormData) => void;
   defaultValues?: Partial<Candidato>;
+  isEditing?: boolean;
 };
 
-export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoFormProps) {
+export default function CandidatoForm({ onSubmit, defaultValues, isEditing = false }: CandidatoFormProps) {
   const router = useRouter();
   const [eleicoes, setEleicoes] = useState<Eleicao[]>([]);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(defaultValues?.foto_url || null);
   
   const form = useForm<CandidatoFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
       numero: defaultValues?.numero || undefined,
-      eleicaoId: defaultValues?.eleicaoId ? String(defaultValues.eleicaoId) : '',
-      fotoUrl: defaultValues?.fotoUrl || '',
+      id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : '',
     },
   });
 
@@ -61,7 +62,7 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
       const fetchEleicoes = async () => {
           try {
               const response = await api.get('/eleicoes');
-              setEleicoes(response.data);
+              setEleicoes(response.data.data);
           } catch (error) {
               console.error("Erro ao buscar eleições:", error);
           }
@@ -69,19 +70,27 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
       fetchEleicoes();
   }, []);
 
-  const fotoUrl = form.watch('fotoUrl');
-  
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // O ideal seria fazer o upload para um serviço de storage e obter a URL.
-      // Por enquanto, vamos usar a URL de dados (Base64), mas sua API espera uma foto_url.
+      form.setValue('foto', file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        form.setValue('fotoUrl', reader.result as string);
+        setFotoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
+  };
+  
+  const handleFormSubmit = (values: CandidatoFormValues) => {
+    const formData = new FormData();
+    formData.append('nome', values.nome);
+    formData.append('numero', String(values.numero));
+    formData.append('id_eleicao', values.id_eleicao);
+    if (values.foto) {
+      formData.append('foto', values.foto);
+    }
+    onSubmit(formData);
   };
 
 
@@ -89,11 +98,11 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
     <Card>
       <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="md:col-span-1 flex flex-col items-center gap-4">
                     <Avatar className="h-40 w-40">
-                        <AvatarImage src={fotoUrl} alt={form.getValues('nome')} data-ai-hint="person portrait" />
+                        <AvatarImage src={fotoPreview || undefined} alt={form.getValues('nome')} data-ai-hint="person portrait" />
                         <AvatarFallback className="text-4xl">
                             {form.getValues('nome')?.substring(0, 2).toUpperCase() || '?'}
                         </AvatarFallback>
@@ -101,10 +110,11 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
                      <Button type="button" variant="outline" asChild>
                         <label htmlFor="foto-upload" className="cursor-pointer">
                             <Upload className="mr-2 h-4 w-4" />
-                            Alterar Foto
+                            {isEditing ? 'Alterar Foto' : 'Enviar Foto'}
                         </label>
                     </Button>
-                    <input type="file" id="foto-upload" className="hidden" accept="image/*" onChange={handleFileChange} />
+                    <input type="file" id="foto-upload" className="hidden" accept="image/*" onChange={handleFotoChange} />
+                    <FormMessage>{form.formState.errors.foto?.message?.toString()}</FormMessage>
                 </div>
 
                 <div className="md:col-span-2 space-y-6">
@@ -137,7 +147,7 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
                         />
                         <FormField
                             control={form.control}
-                            name="eleicaoId"
+                            name="id_eleicao"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Eleição</FormLabel>

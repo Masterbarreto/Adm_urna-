@@ -1,4 +1,6 @@
-import Link from 'next/link';
+'use client';
+
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -16,29 +18,21 @@ import {
   VoteIcon,
   Wifi,
   CheckCircle,
+  Activity,
+  AlertCircle,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import api from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
 
-const statItems = [
-  {
-    title: 'Status da Urna',
-    value: 'Ativa',
-    icon: CheckCircle,
-    color: 'text-success',
-  },
-  {
-    title: 'Conexão da Urna',
-    value: 'Online',
-    icon: Wifi,
-    color: 'text-accent',
-  },
-  {
-    title: 'Total de Votos',
-    value: '1,234',
-    icon: VoteIcon,
-    color: 'text-foreground',
-  },
-];
+type DashboardSummary = {
+    statusUrna: string;
+    conexaoUrna: 'Online' | 'Offline';
+    totalVotos: number;
+    contagemEleicoes: number;
+    contagemCandidatos: number;
+    contagemEleitores: number;
+}
 
 const navItems = [
     { href: '/urnas', icon: Server, label: 'Urnas', description: 'Gerencie a urna eletrônica' },
@@ -50,6 +44,51 @@ const navItems = [
 ];
 
 export default function DashboardPage() {
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchSummary() {
+      try {
+        setLoading(true);
+        const response = await api.get('/dashboard/summary');
+        setSummary(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar resumo do dashboard:", error);
+        toast({
+          title: 'Erro ao carregar dashboard',
+          description: 'Não foi possível buscar os dados do painel.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSummary();
+  }, [toast]);
+
+  const statItems = [
+    {
+      title: 'Status da Urna',
+      value: summary?.statusUrna || '...',
+      icon: summary?.statusUrna === 'Ativa' ? Activity : AlertCircle,
+      color: summary?.statusUrna === 'Ativa' ? 'text-success' : 'text-destructive',
+    },
+    {
+      title: 'Conexão da Urna',
+      value: summary?.conexaoUrna || '...',
+      icon: summary?.conexaoUrna === 'Online' ? Wifi : AlertCircle,
+      color: summary?.conexaoUrna === 'Online' ? 'text-accent' : 'text-destructive',
+    },
+    {
+      title: 'Total de Votos',
+      value: summary?.totalVotos.toLocaleString('pt-BR') || '0',
+      icon: VoteIcon,
+      color: 'text-foreground',
+    },
+  ];
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <PageHeader
@@ -58,7 +97,18 @@ export default function DashboardPage() {
       />
       <main>
         <section className="grid gap-4 md:grid-cols-3">
-          {statItems.map((item) => (
+          {loading ? (
+             Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Carregando...</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold h-8 w-1/2 bg-muted rounded animate-pulse"></div>
+                    </CardContent>
+                </Card>
+             ))
+          ) : statItems.map((item) => (
             <Card key={item.title}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">

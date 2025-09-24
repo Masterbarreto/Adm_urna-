@@ -40,9 +40,10 @@ export default function ResultadosPage() {
     async function fetchEleicoes() {
         try {
             const response = await api.get('/eleicoes');
-            setEleicoes(response.data);
-            if (response.data.length > 0) {
-                setSelectedEleicaoId(String(response.data[0].id));
+            setEleicoes(response.data.data);
+            if (response.data.data.length > 0) {
+                // Seleciona a primeira eleição por padrão
+                setSelectedEleicaoId(String(response.data.data[0].id));
             }
         } catch (error) {
             console.error("Erro ao buscar eleições:", error);
@@ -56,37 +57,57 @@ export default function ResultadosPage() {
     async function fetchResultados() {
         if (!selectedEleicaoId) return;
         
-        // A API não possui um endpoint para buscar resultados.
-        // O ideal seria um GET /resultados/{eleicaoId}
-        console.log(`Buscando resultados para a eleição ${selectedEleicaoId} (simulação)`);
         setLoading(true);
-        // Simulando uma chamada de API
-        setTimeout(() => {
-            setResultados({
-                totalVotos: 0,
-                votosBrancos: 0,
-                votosNulos: 0,
-                votosPorCandidato: [],
-            });
-             toast({
-                title: 'Funcionalidade Indisponível',
-                description: 'A API não possui um endpoint para buscar os resultados da eleição.',
+        try {
+            const response = await api.get(`/resultados/${selectedEleicaoId}`);
+            setResultados(response.data);
+        } catch (error) {
+            console.error(`Erro ao buscar resultados para a eleição ${selectedEleicaoId}:`, error);
+            toast({
+                title: 'Erro ao buscar resultados',
+                description: 'Não foi possível carregar os dados para esta eleição.',
                 variant: 'destructive',
             });
+            setResultados(null); // Limpa resultados anteriores em caso de erro
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     }
     fetchResultados();
   }, [selectedEleicaoId, toast]);
 
 
-  const handleExport = () => {
-    // Simulação de exportação
-    toast({
-      title: "Exportação (Simulada) Iniciada",
-      description: "O seu relatório de resultados está sendo gerado e o download começará em breve.",
-    });
-    console.log("Exportando relatório...");
+  const handleExport = async () => {
+    if(!selectedEleicaoId) return;
+    try {
+        const response = await api.get(`/resultados/${selectedEleicaoId}/exportar`, {
+            responseType: 'blob', // Importante para lidar com arquivos
+        });
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        
+        const eleicao = eleicoes.find(e => e.id === Number(selectedEleicaoId));
+        const fileName = `resultados_${eleicao?.nome.replace(/\s+/g, '_') || selectedEleicaoId}.csv`;
+        
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        toast({
+            title: "Exportação Iniciada",
+            description: "O seu relatório de resultados começou a ser baixado.",
+        });
+    } catch(error) {
+        console.error("Erro ao exportar relatório:", error);
+        toast({
+            title: "Erro na Exportação",
+            description: "Não foi possível gerar o relatório.",
+            variant: 'destructive',
+        });
+    }
   }
 
   const statItems = [
@@ -114,7 +135,7 @@ export default function ResultadosPage() {
         description="Visualize os resultados da eleição ativa em tempo real."
       >
         <div className="flex items-center gap-2">
-            <Select value={selectedEleicaoId} onValueChange={setSelectedEleicaoId}>
+            <Select value={selectedEleicaoId} onValueChange={setSelectedEleicaoId} disabled={eleicoes.length === 0}>
               <SelectTrigger className="w-[280px]">
                 <SelectValue placeholder="Selecione uma eleição" />
               </SelectTrigger>
@@ -169,7 +190,7 @@ export default function ResultadosPage() {
         ) : (
             <Card>
                 <CardContent className="py-24 text-center text-muted-foreground">
-                    Selecione uma eleição para ver os resultados.
+                    {eleicoes.length > 0 ? 'Selecione uma eleição para ver os resultados.' : 'Nenhuma eleição encontrada.'}
                 </CardContent>
             </Card>
         )}

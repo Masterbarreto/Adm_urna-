@@ -7,6 +7,7 @@ import type { Eleicao } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
+import { formatISO } from 'date-fns';
 
 export default function EditarEleicaoPage() {
   const router = useRouter();
@@ -20,12 +21,8 @@ export default function EditarEleicaoPage() {
     if (eleicaoId) {
       const fetchEleicao = async () => {
          try {
-          // Sua API não tem um endpoint para buscar uma eleição por ID,
-          // então vamos buscar todas e filtrar.
-          // O ideal seria ter um GET /eleicoes/{id}
-          const response = await api.get('/eleicoes');
-          const eleicaoParaEditar = response.data.find((e: Eleicao) => e.id === Number(eleicaoId)) || null;
-          setEleicao(eleicaoParaEditar);
+          const response = await api.get(`/eleicoes/${eleicaoId}`);
+          setEleicao(response.data);
         } catch (error) {
           console.error("Erro ao buscar eleição:", error);
           toast({
@@ -41,21 +38,36 @@ export default function EditarEleicaoPage() {
 
 
   const handleSubmit = async (data: any) => {
-    // Sua API não tem um endpoint de atualização (PUT /eleicoes/{id})
-    // Adicione um no backend para esta funcionalidade operar.
-    console.log('Eleição atualizada (simulação):', { id: eleicaoId, ...data });
-    toast({
-      title: 'Funcionalidade Indisponível',
-      description: 'A API não possui um endpoint para atualizar eleições. Ação simulada.',
-      variant: 'destructive'
-    });
-    router.push('/eleicoes');
+    try {
+      const payload = {
+        nome: data.nome,
+        data_inicio: formatISO(data.dataInicio),
+        data_fim: formatISO(data.dataFim),
+        id_urna: parseInt(data.urnaId),
+      };
+
+      await api.put(`/eleicoes/${eleicaoId}`, payload);
+
+      toast({
+        title: 'Eleição Atualizada',
+        description: 'Os dados da eleição foram atualizados com sucesso.'
+      });
+      router.push('/eleicoes');
+      router.refresh();
+    } catch(error) {
+      console.error("Erro ao atualizar eleição:", error);
+       toast({
+          title: 'Erro ao atualizar',
+          description: 'Não foi possível atualizar os dados da eleição.',
+          variant: 'destructive'
+        });
+    }
   };
   
   if (!eleicao) {
     return (
         <div className="p-4 sm:p-6 lg:p-8">
-            <PageHeader title="Carregando..." />
+            <PageHeader title="Carregando..." backHref="/eleicoes"/>
             <p>Carregando dados da eleição...</p>
         </div>
     )

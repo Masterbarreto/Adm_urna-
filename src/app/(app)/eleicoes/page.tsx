@@ -5,7 +5,6 @@ import { MoreHorizontal, PlusCircle, Edit, Trash2, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -46,14 +45,12 @@ export default function EleicoesPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [eleicaoToDelete, setEleicaoToDelete] = useState<Eleicao | null>(null);
   const { toast } = useToast();
-  const router = useRouter();
 
-  useEffect(() => {
-    async function fetchEleicoes() {
+  async function fetchEleicoes() {
       try {
         setLoading(true);
         const response = await api.get('/eleicoes');
-        setEleicoes(response.data);
+        setEleicoes(response.data.data);
       } catch (error) {
         console.error("Erro ao buscar eleições:", error);
         toast({
@@ -65,8 +62,10 @@ export default function EleicoesPage() {
         setLoading(false);
       }
     }
+
+  useEffect(() => {
     fetchEleicoes();
-  }, [toast]);
+  }, []);
   
   const handleDeleteClick = (eleicao: Eleicao) => {
     setEleicaoToDelete(eleicao);
@@ -75,16 +74,24 @@ export default function EleicoesPage() {
   
   const handleConfirmDelete = async () => {
     if (eleicaoToDelete) {
-      // Sua API não tem um endpoint de deleção (DELETE /eleicoes/{id})
-      // Adicione um no backend para esta funcionalidade operar.
-      console.log('Removendo eleição (simulação):', eleicaoToDelete.id);
-      toast({
-        title: 'Funcionalidade Indisponível',
-        description: `A API não possui um endpoint para remover eleições. Ação simulada.`,
-        variant: 'destructive'
-      });
-      setShowDeleteDialog(false);
-      setEleicaoToDelete(null);
+      try {
+        await api.delete(`/eleicoes/${eleicaoToDelete.id}`);
+        toast({
+          title: 'Eleição Removida',
+          description: `A eleição "${eleicaoToDelete.nome}" foi removida.`,
+        });
+        fetchEleicoes();
+      } catch(error) {
+        console.error("Erro ao remover eleição:", error);
+        toast({
+          title: 'Erro ao remover',
+          description: 'Não foi possível remover a eleição.',
+          variant: 'destructive',
+        });
+      } finally {
+        setShowDeleteDialog(false);
+        setEleicaoToDelete(null);
+      }
     }
   };
 
@@ -125,9 +132,9 @@ export default function EleicoesPage() {
                 eleicoes.map((eleicao) => (
                 <TableRow key={eleicao.id}>
                     <TableCell className="font-medium">{eleicao.nome}</TableCell>
-                    <TableCell>{format(new Date(eleicao.dataInicio), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
-                    <TableCell>{format(new Date(eleicao.dataFim), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
-                    <TableCell>{eleicao.urnaId}</TableCell>
+                    <TableCell>{format(new Date(eleicao.data_inicio), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
+                    <TableCell>{format(new Date(eleicao.data_fim), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
+                    <TableCell>{eleicao.id_urna}</TableCell>
                     <TableCell>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

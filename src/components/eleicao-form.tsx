@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -33,9 +32,8 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
-import type { Candidato, Eleicao, Urna } from '@/lib/types';
+import type { Eleicao, Urna } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Checkbox } from './ui/checkbox';
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 
@@ -49,12 +47,6 @@ const formSchema = z
       required_error: 'A data de fim é obrigatória.',
     }),
     urnaId: z.string({ required_error: 'Selecione uma urna.' }),
-    candidatoIds: z
-      .array(z.string())
-      .refine(
-        (value) => value.some((item) => item),
-        { message: 'Você deve selecionar pelo menos um candidato.' }
-      ),
   })
   .refine((data) => data.dataFim > data.dataInicio, {
     message: 'A data de fim deve ser posterior à data de início.',
@@ -65,7 +57,7 @@ type EleicaoFormValues = z.infer<typeof formSchema>;
 
 type EleicaoFormProps = {
   onSubmit: (data: EleicaoFormValues) => void;
-  defaultValues?: Partial<Eleicao & { candidatoIds?: string[] }>;
+  defaultValues?: Partial<Eleicao>;
 };
 
 export default function EleicaoForm({
@@ -74,34 +66,26 @@ export default function EleicaoForm({
 }: EleicaoFormProps) {
   const router = useRouter();
   const [urnas, setUrnas] = useState<Urna[]>([]);
-  const [candidatos, setCandidatos] = useState<Candidato[]>([]);
   
   const form = useForm<EleicaoFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
-      dataInicio: defaultValues?.dataInicio
-        ? new Date(defaultValues.dataInicio)
+      dataInicio: defaultValues?.data_inicio
+        ? new Date(defaultValues.data_inicio)
         : undefined,
-      dataFim: defaultValues?.dataFim
-        ? new Date(defaultValues.dataFim)
+      dataFim: defaultValues?.data_fim
+        ? new Date(defaultValues.data_fim)
         : undefined,
-      urnaId: defaultValues?.urnaId ? String(defaultValues.urnaId) : '',
-      candidatoIds: defaultValues?.candidatoIds || [],
+      urnaId: defaultValues?.id_urna ? String(defaultValues.id_urna) : '',
     },
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Sua API não tem rotas para buscar urnas e candidatos,
-        // será preciso criá-las no backend.
-        // const [urnasRes, candidatosRes] = await Promise.all([
-        //   api.get('/urnas'),
-        //   api.get('/candidatos')
-        // ]);
-        // setUrnas(urnasRes.data);
-        // setCandidatos(candidatosRes.data);
+        const urnasRes = await api.get('/urnas');
+        setUrnas(urnasRes.data.data);
       } catch (error) {
         console.error("Erro ao buscar dados para o formulário:", error);
       }
@@ -134,7 +118,7 @@ export default function EleicaoForm({
                 name="dataInicio"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Data e Hora de Início</FormLabel>
+                    <FormLabel>Data de Início</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -146,7 +130,7 @@ export default function EleicaoForm({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, 'PPP HH:mm', {
+                              format(field.value, 'dd/MM/yyyy', {
                                 locale: ptBR,
                               })
                             ) : (
@@ -163,7 +147,6 @@ export default function EleicaoForm({
                           onSelect={field.onChange}
                           disabled={(date) => date < new Date()}
                         />
-                        {/* TODO: Add time picker */}
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -175,7 +158,7 @@ export default function EleicaoForm({
                 name="dataFim"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Data e Hora de Fim</FormLabel>
+                    <FormLabel>Data de Fim</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -187,7 +170,7 @@ export default function EleicaoForm({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, 'PPP HH:mm', {
+                              format(field.value, 'dd/MM/yyyy', {
                                 locale: ptBR,
                               })
                             ) : (
@@ -206,7 +189,6 @@ export default function EleicaoForm({
                             date < (form.getValues('dataInicio') || new Date())
                           }
                         />
-                        {/* TODO: Add time picker */}
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
@@ -238,51 +220,6 @@ export default function EleicaoForm({
                       )) : <p className="p-4 text-sm text-muted-foreground">Nenhuma urna disponível</p>}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="candidatoIds"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Candidatos</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      const currentValues = field.value || [];
-                      if (currentValues.includes(value)) {
-                        field.onChange(currentValues.filter((v) => v !== value));
-                      } else {
-                        field.onChange([...currentValues, value]);
-                      }
-                    }}
-                    value={''}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione os candidatos" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {candidatos.length > 0 ? candidatos.map((candidato: Candidato) => (
-                        <SelectItem key={candidato.id} value={String(candidato.id)}>
-                          <div className="flex items-center">
-                            <Checkbox
-                                className="mr-2"
-                                checked={field.value?.includes(String(candidato.id))}
-                                readOnly
-                             />
-                            {candidato.nome}
-                          </div>
-                        </SelectItem>
-                      )) : <p className="p-4 text-sm text-muted-foreground">Nenhum candidato disponível</p>}
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Candidatos selecionados: {field.value?.length || 0}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

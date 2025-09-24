@@ -1,34 +1,33 @@
 'use client';
 
 import { useState } from 'react';
-import { UploadCloud, File, CheckCircle } from 'lucide-react';
+import { UploadCloud, File, CheckCircle, AlertTriangle } from 'lucide-react';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
 
+type ImportResult = {
+  message: string;
+  importedCount: number;
+  failedCount: number;
+  errors: string[];
+}
+
 export default function ImportarEleitoresPage() {
   const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [previewData, setPreviewData] = useState<string[][]>([]);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      readAndPreviewFile(selectedFile);
+      setImportResult(null);
     }
   };
   
@@ -38,7 +37,7 @@ export default function ImportarEleitoresPage() {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
         const selectedFile = e.dataTransfer.files[0];
         setFile(selectedFile);
-        readAndPreviewFile(selectedFile);
+        setImportResult(null);
     }
   }
 
@@ -47,51 +46,40 @@ export default function ImportarEleitoresPage() {
     e.stopPropagation();
   }
 
-
-  const readAndPreviewFile = (file: File) => {
-    setUploading(false); // Apenas preview, não upload real ainda
-    setUploadProgress(0);
-
-    // Simulate file reading and parsing for preview
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      const lines = text.split('\n').slice(0, 6); // Header + 5 lines
-      const data = lines.map(line => line.split(','));
-      setPreviewData(data);
-    };
-    reader.readAsText(file);
-    setUploadProgress(100); // Marca como pronto para importação
-  };
-
   const handleProcessImport = async () => {
     if (!file) return;
 
-    // A API não possui um endpoint para importação de arquivos.
-    // O ideal seria um `POST /eleitores/importar` que aceita multipart/form-data
-    toast({
-        title: 'Funcionalidade Indisponível',
-        description: 'A API não possui um endpoint para importar eleitores. Ação simulada.',
-        variant: 'destructive'
-    });
-    console.log('Simulando importação do arquivo:', file.name);
-    setUploading(true);
+    setIsUploading(true);
+    setUploadProgress(0);
 
-    // Simulação de progresso de importação
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 99) {
-          clearInterval(interval);
-          setUploading(false);
-           toast({
-            title: 'Importação (Simulada) Concluída',
-            description: "Os eleitores foram processados com sucesso.",
-          });
-          return 100;
-        }
-        return prev + 20;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await api.post('/eleitores/importar', formData, {
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
+          );
+          setUploadProgress(percentCompleted);
+        },
       });
-    }, 500);
+
+      setImportResult(response.data);
+      toast({
+        title: 'Importação Concluída',
+        description: `${response.data.importedCount} eleitores importados com sucesso.`,
+      });
+    } catch (error) {
+      console.error("Erro na importação:", error);
+      toast({
+        title: 'Erro na Importação',
+        description: 'Ocorreu um erro ao processar o arquivo. Verifique o console para mais detalhes.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -122,10 +110,7 @@ export default function ImportarEleitoresPage() {
           </CardContent>
         </Card>
         
-        <Card
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-        >
+        <Card onDrop={handleDrop} onDragOver={handleDragOver}>
           <CardHeader>
             <CardTitle>Upload de Arquivo</CardTitle>
           </CardHeader>
@@ -148,55 +133,61 @@ export default function ImportarEleitoresPage() {
                   <input id="dropzone-file" type="file" className="hidden" onChange={handleFileChange} accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
                 </label>
               </div>
-                {uploading && (
+                {isUploading && (
                     <div className="space-y-2">
-                        <p className="text-sm font-medium">Processando importação...</p>
+                        <p className="text-sm font-medium">Enviando arquivo...</p>
                         <Progress value={uploadProgress} />
                     </div>
                 )}
-                {file && !uploading && (
+                {file && !isUploading && (
                     <div className="flex items-center p-3 text-sm rounded-md bg-muted text-muted-foreground">
-                        {uploadProgress === 100 ? <CheckCircle className="w-5 h-5 mr-3 text-success" /> : <File className="w-5 h-5 mr-3" />}
-                        <span>{file.name} ({Math.round(file.size / 1024)} KB) - {uploadProgress === 100 ? 'Pronto para importação' : 'Upload Concluído'}</span>
+                        <File className="w-5 h-5 mr-3" />
+                        <span>{file.name} ({Math.round(file.size / 1024)} KB) - Pronto para importação</span>
                     </div>
                 )}
             </div>
           </CardContent>
         </Card>
         
-        {previewData.length > 0 && (
+        {importResult && (
           <Card>
             <CardHeader>
-              <CardTitle>Pré-visualização</CardTitle>
+              <CardTitle>Resultado da Importação</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {previewData[0].map((header, index) => (
-                        <TableHead key={index}>{header}</TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {previewData.slice(1).map((row, rowIndex) => (
-                        <TableRow key={rowIndex}>
-                            {row.map((cell, cellIndex) => (
-                                <TableCell key={cellIndex}>{cell}</TableCell>
-                            ))}
-                        </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center text-success">
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    <span className="font-bold">{importResult.importedCount}</span>
+                    <span className="ml-1">importados</span>
+                  </div>
+                  <div className={`flex items-center ${importResult.failedCount > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                    <AlertTriangle className="w-5 h-5 mr-2" />
+                    <span className="font-bold">{importResult.failedCount}</span>
+                    <span className="ml-1">falhas</span>
+                  </div>
+                </div>
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Detalhes dos Erros:</h4>
+                    <div className="max-h-40 overflow-y-auto bg-muted p-3 rounded-md">
+                      <ul className="text-sm text-destructive space-y-1">
+                        {importResult.errors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         )}
 
         <div className="flex justify-end">
-            <Button onClick={handleProcessImport} disabled={!file || uploading || previewData.length === 0}>
-                Processar Importação
+            <Button onClick={handleProcessImport} disabled={!file || isUploading}>
+                {isUploading ? 'Processando...' : 'Processar Importação'}
             </Button>
         </div>
       </div>

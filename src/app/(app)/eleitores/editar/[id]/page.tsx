@@ -20,12 +20,8 @@ export default function EditarEleitorPage() {
     if (eleitorId) {
       const fetchEleitor = async () => {
         try {
-          // Sua API não tem um endpoint para buscar um eleitor por ID,
-          // então vamos buscar todos e filtrar.
-          // O ideal seria ter um GET /eleitores/{id}
-          const response = await api.get('/eleitores');
-          const eleitorParaEditar = response.data.find((e: Eleitor) => e.id === Number(eleitorId)) || null;
-          setEleitor(eleitorParaEditar);
+          const response = await api.get(`/eleitores/${eleitorId}`);
+          setEleitor(response.data);
         } catch (error) {
           console.error("Erro ao buscar eleitor:", error);
           toast({
@@ -41,21 +37,28 @@ export default function EditarEleitorPage() {
 
 
   const handleSubmit = async (data: Omit<Eleitor, 'id'>) => {
-    // Sua API não tem um endpoint de atualização (PUT /eleitores/{id})
-    // Adicione um no backend para esta funcionalidade operar.
-    console.log('Eleitor atualizado (simulação):', { id: eleitorId, ...data });
-    toast({
-      title: 'Funcionalidade Indisponível',
-      description: 'A API não possui um endpoint para atualizar eleitores. Ação simulada.',
-      variant: 'destructive'
-    });
-    router.push('/eleitores');
+    try {
+        await api.put(`/eleitores/${eleitorId}`, data);
+        toast({
+            title: 'Eleitor Atualizado',
+            description: 'Os dados do eleitor foram atualizados com sucesso.',
+        });
+        router.push('/eleitores');
+        router.refresh();
+    } catch(error) {
+        console.error('Erro ao atualizar eleitor:', error);
+        toast({
+            title: 'Erro ao Atualizar',
+            description: 'Não foi possível atualizar os dados do eleitor.',
+            variant: 'destructive'
+        });
+    }
   };
   
   if (!eleitor) {
     return (
         <div className="p-4 sm:p-6 lg:p-8">
-            <PageHeader title="Carregando..." />
+            <PageHeader title="Carregando..." backHref="/eleitores" />
             <p>Carregando dados do eleitor...</p>
         </div>
     )
