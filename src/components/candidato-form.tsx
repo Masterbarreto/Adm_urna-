@@ -32,6 +32,7 @@ import api from '@/lib/api';
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   numero: z.coerce.number().min(1, 'O número deve ser maior que zero.'),
+  partido: z.string().min(2, 'O partido deve ter pelo menos 2 caracteres.'),
   id_eleicao: z.string({ required_error: 'Selecione uma eleição.' }),
   foto: z.any().optional(),
 });
@@ -54,6 +55,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     defaultValues: {
       nome: defaultValues?.nome || '',
       numero: defaultValues?.numero || '',
+      partido: defaultValues?.partido || '',
       id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : '',
     },
   });
@@ -88,6 +90,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     const formData = new FormData();
     formData.append('nome', values.nome);
     formData.append('numero', String(values.numero));
+    formData.append('partido', values.partido);
     formData.append('id_eleicao', values.id_eleicao);
     if (values.foto) {
       formData.append('foto', values.foto);
@@ -149,27 +152,40 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
                         />
                         <FormField
                             control={form.control}
-                            name="id_eleicao"
+                            name="partido"
                             render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Eleição</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Selecione a qual eleição o candidato pertence" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {eleicoes.map((eleicao: Eleicao) => (
-                                                <SelectItem key={eleicao.id} value={String(eleicao.id)}>{eleicao.titulo}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
+                            <FormItem>
+                                <FormLabel>Partido</FormLabel>
+                                <FormControl>
+                                <Input placeholder="Nome do Partido" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                             )}
                         />
                     </div>
+                     <FormField
+                        control={form.control}
+                        name="id_eleicao"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Eleição</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Selecione a qual eleição o candidato pertence" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {eleicoes.map((eleicao: Eleicao) => (
+                                            <SelectItem key={eleicao.id} value={String(eleicao.id)}>{eleicao.titulo}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
             </div>
             

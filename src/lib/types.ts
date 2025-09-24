@@ -16,11 +16,13 @@ export type Eleicao = {
 };
 
 export type Candidato = {
-    id: number;
+    id: string;
     nome: string;
     numero: number;
+    partido: string;
     foto_url: string;
-    id_eleicao: number;
+    id_eleicao: string;
+    total_votos?: number;
 };
 
 export type Eleitor = {
