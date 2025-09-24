@@ -1,6 +1,6 @@
 'use client';
 
-import { Bar, BarChart, CartesianGrid, XAxis, Pie, Cell } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, Pie, Cell, PieChart as PieChartComponent } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ChartContainer,
@@ -9,37 +9,48 @@ import {
   ChartLegend,
   ChartLegendContent,
   ChartConfig,
-  ChartStyle,
 } from '@/components/ui/chart';
-import { mockResultados } from '@/lib/mock-data';
-import { PieChart as PieChartComponent } from 'recharts';
+import { useMemo } from 'react';
 
-const chartData = mockResultados.votosPorCandidato;
+type ChartData = {
+    nome: string;
+    votos: number;
+}
 
-const chartConfig = {
-  votos: {
-    label: 'Votos',
-  },
-  'Fulano de Tal': {
-    label: 'Fulano de Tal',
-    color: 'hsl(var(--chart-1))',
-  },
-  'Ciclana da Silva': {
-    label: 'Ciclana da Silva',
-    color: 'hsl(var(--chart-2))',
-  },
-  'Beltrano Souza': {
-    label: 'Beltrano Souza',
-    color: 'hsl(var(--chart-3))',
-  },
-} satisfies ChartConfig;
+type ResultadosChartsProps = {
+    chartData: ChartData[];
+}
 
-export default function ResultadosCharts() {
+const chartColors = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-4))',
+    'hsl(var(--chart-5))',
+];
+
+export default function ResultadosCharts({ chartData }: ResultadosChartsProps) {
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {
+      votos: {
+        label: 'Votos',
+      },
+    };
+    chartData.forEach((item, index) => {
+        config[item.nome] = {
+            label: item.nome,
+            color: chartColors[index % chartColors.length],
+        };
+    });
+    return config;
+  }, [chartData]);
+
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Votos por Candidato</CardTitle>
+          <CardTitle>Votos por Candidato (Pizza)</CardTitle>
         </CardHeader>
         <CardContent>
           <ChartContainer
@@ -75,7 +86,7 @@ export default function ResultadosCharts() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Votos por Candidato</CardTitle>
+          <CardTitle>Votos por Candidato (Barras)</CardTitle>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[300px] w-full">

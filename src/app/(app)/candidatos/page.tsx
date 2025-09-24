@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MoreHorizontal, PlusCircle, Search, Edit, Trash2 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -27,7 +26,6 @@ import {
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { mockCandidatos } from '@/lib/mock-data';
 import type { Candidato } from '@/lib/types';
 import {
   AlertDialog,
@@ -40,40 +38,63 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import api from '@/lib/api';
 
 export default function CandidatosPage() {
+  const [candidatos, setCandidatos] = useState<Candidato[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [candidateToDelete, setCandidateToDelete] = useState<Candidato | null>(null);
   const { toast } = useToast();
   const router = useRouter();
 
+  useEffect(() => {
+    async function fetchCandidatos() {
+      try {
+        setLoading(true);
+        const response = await api.get('/candidatos');
+        setCandidatos(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar candidatos:", error);
+        toast({
+          title: 'Erro ao carregar',
+          description: 'Não foi possível buscar a lista de candidatos.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCandidatos();
+  }, [toast]);
+
 
   const filteredCandidatos = useMemo(() => {
-    return mockCandidatos.filter(
+    return candidatos.filter(
       (c) =>
         c.nome.toLowerCase().includes(search.toLowerCase()) ||
         c.numero.toString().includes(search)
     );
-  }, [search]);
+  }, [search, candidatos]);
 
   const handleDeleteClick = (candidato: Candidato) => {
     setCandidateToDelete(candidato);
     setShowDeleteDialog(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (candidateToDelete) {
-      console.log('Removendo candidato:', candidateToDelete.id);
-      // Aqui você chamaria a API para remover
+      // Sua API não tem um endpoint de deleção (DELETE /candidatos/{id})
+      // Adicione um no backend para esta funcionalidade operar.
+      console.log('Removendo candidato (simulação):', candidateToDelete.id);
       toast({
-        title: 'Candidato Removido',
-        description: `O candidato ${candidateToDelete.nome} foi removido com sucesso.`,
+        title: 'Funcionalidade Indisponível',
+        description: `A API não possui um endpoint para remover candidatos. Ação simulada.`,
+        variant: 'destructive'
       });
       setShowDeleteDialog(false);
       setCandidateToDelete(null);
-      // Idealmente, você invalidaria o cache de dados aqui para forçar a atualização da lista
-      router.refresh(); 
     }
   };
 
@@ -116,7 +137,14 @@ export default function CandidatosPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredCandidatos.map((candidato: Candidato) => (
+            {loading ? (
+                <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
+                        Carregando candidatos...
+                    </TableCell>
+                </TableRow>
+            ): filteredCandidatos.length > 0 ? (
+              filteredCandidatos.map((candidato: Candidato) => (
               <TableRow key={candidato.id}>
                 <TableCell>
                   <Avatar className="h-10 w-10">
@@ -151,8 +179,8 @@ export default function CandidatosPage() {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
-            {filteredCandidatos.length === 0 && (
+              ))
+            ) : (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">
                   Nenhum candidato encontrado.

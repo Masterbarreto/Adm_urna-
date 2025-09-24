@@ -1,5 +1,5 @@
 export type Urna = {
-  id: string;
+  id: number;
   nome: string;
   local: string;
   status: 'online' | 'offline';
@@ -7,32 +7,34 @@ export type Urna = {
 };
 
 export type Eleicao = {
-  id: string;
+  id: number;
   nome: string;
   dataInicio: string;
   dataFim:string;
-  urnaId: string;
+  urnaId: number;
 };
 
 export type Candidato = {
-    id: string;
+    id: number;
     nome: string;
     numero: number;
     fotoUrl: string;
-    eleicaoId: string;
+    eleicaoId: number;
 };
 
 export type Eleitor = {
-    id: string;
+    id: number;
     nome: string;
     cpf: string;
     matricula: string;
 };
 
 export type Log = {
-    id: string;
+    id: number;
     data: string;
     acao: string;
-    usuario: string;
+    usuario: {
+      nome: string;
+    };
     descricao: string;
 };

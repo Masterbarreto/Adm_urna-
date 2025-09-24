@@ -24,9 +24,10 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Candidato, Eleicao } from '@/lib/types';
-import { mockEleicoes } from '@/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Upload } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import api from '@/lib/api';
 
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
@@ -44,21 +45,37 @@ type CandidatoFormProps = {
 
 export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoFormProps) {
   const router = useRouter();
+  const [eleicoes, setEleicoes] = useState<Eleicao[]>([]);
+  
   const form = useForm<CandidatoFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
       numero: defaultValues?.numero || undefined,
-      eleicaoId: defaultValues?.eleicaoId || '',
+      eleicaoId: defaultValues?.eleicaoId ? String(defaultValues.eleicaoId) : '',
       fotoUrl: defaultValues?.fotoUrl || '',
     },
   });
+
+  useEffect(() => {
+      const fetchEleicoes = async () => {
+          try {
+              const response = await api.get('/eleicoes');
+              setEleicoes(response.data);
+          } catch (error) {
+              console.error("Erro ao buscar eleições:", error);
+          }
+      };
+      fetchEleicoes();
+  }, []);
 
   const fotoUrl = form.watch('fotoUrl');
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // O ideal seria fazer o upload para um serviço de storage e obter a URL.
+      // Por enquanto, vamos usar a URL de dados (Base64), mas sua API espera uma foto_url.
       const reader = new FileReader();
       reader.onloadend = () => {
         form.setValue('fotoUrl', reader.result as string);
@@ -131,8 +148,8 @@ export default function CandidatoForm({ onSubmit, defaultValues }: CandidatoForm
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            {mockEleicoes.map((eleicao: Eleicao) => (
-                                                <SelectItem key={eleicao.id} value={eleicao.id}>{eleicao.nome}</SelectItem>
+                                            {eleicoes.map((eleicao: Eleicao) => (
+                                                <SelectItem key={eleicao.id} value={String(eleicao.id)}>{eleicao.nome}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>

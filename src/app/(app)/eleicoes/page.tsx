@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MoreHorizontal, PlusCircle, Edit, Trash2, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -26,7 +26,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Card } from '@/components/ui/card';
-import { mockEleicoes } from '@/lib/mock-data';
 import type { Eleicao } from '@/lib/types';
 import {
   AlertDialog,
@@ -39,30 +38,53 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import api from '@/lib/api';
 
 export default function EleicoesPage() {
+  const [eleicoes, setEleicoes] = useState<Eleicao[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [eleicaoToDelete, setEleicaoToDelete] = useState<Eleicao | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    async function fetchEleicoes() {
+      try {
+        setLoading(true);
+        const response = await api.get('/eleicoes');
+        setEleicoes(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar eleições:", error);
+        toast({
+          title: 'Erro ao carregar',
+          description: 'Não foi possível buscar a lista de eleições.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEleicoes();
+  }, [toast]);
   
   const handleDeleteClick = (eleicao: Eleicao) => {
     setEleicaoToDelete(eleicao);
     setShowDeleteDialog(true);
   };
   
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (eleicaoToDelete) {
-      console.log('Removendo eleição:', eleicaoToDelete.id);
-      // Aqui você chamaria a API para remover
+      // Sua API não tem um endpoint de deleção (DELETE /eleicoes/{id})
+      // Adicione um no backend para esta funcionalidade operar.
+      console.log('Removendo eleição (simulação):', eleicaoToDelete.id);
       toast({
-        title: 'Eleição Removida',
-        description: `A eleição ${eleicaoToDelete.nome} foi removida com sucesso.`,
+        title: 'Funcionalidade Indisponível',
+        description: `A API não possui um endpoint para remover eleições. Ação simulada.`,
+        variant: 'destructive'
       });
       setShowDeleteDialog(false);
       setEleicaoToDelete(null);
-      // Idealmente, você invalidaria o cache de dados aqui para forçar a atualização da lista
-      router.refresh();
     }
   };
 
@@ -93,44 +115,58 @@ export default function EleicoesPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockEleicoes.map((eleicao) => (
-              <TableRow key={eleicao.id}>
-                <TableCell className="font-medium">{eleicao.nome}</TableCell>
-                <TableCell>{format(new Date(eleicao.dataInicio), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
-                <TableCell>{format(new Date(eleicao.dataFim), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
-                <TableCell>{eleicao.urnaId}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Toggle menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Ações</DropdownMenuLabel>
-                      <DropdownMenuItem asChild>
-                         <Link href={`/eleicoes/editar/${eleicao.id}`} className="flex items-center">
-                            <Edit className="mr-2 h-4 w-4"/>
-                            Editar
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                         <Link href={`/eleicoes/${eleicao.id}/candidatos`} className="flex items-center">
-                            <Users className="mr-2 h-4 w-4"/>
-                            Gerenciar Candidatos
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => handleDeleteClick(eleicao)} className="text-destructive focus:text-destructive flex items-center">
-                        <Trash2 className="mr-2 h-4 w-4"/>
-                        Remover
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+            {loading ? (
+                <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                        Carregando eleições...
+                    </TableCell>
+                </TableRow>
+            ) : eleicoes.length > 0 ? (
+                eleicoes.map((eleicao) => (
+                <TableRow key={eleicao.id}>
+                    <TableCell className="font-medium">{eleicao.nome}</TableCell>
+                    <TableCell>{format(new Date(eleicao.dataInicio), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
+                    <TableCell>{format(new Date(eleicao.dataFim), "dd/MM/yyyy HH:mm", { locale: ptBR })}</TableCell>
+                    <TableCell>{eleicao.urnaId}</TableCell>
+                    <TableCell>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Toggle menu</span>
+                        </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Ações</DropdownMenuLabel>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/eleicoes/editar/${eleicao.id}`} className="flex items-center">
+                                <Edit className="mr-2 h-4 w-4"/>
+                                Editar
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href={`/eleicoes/${eleicao.id}/candidatos`} className="flex items-center">
+                                <Users className="mr-2 h-4 w-4"/>
+                                Gerenciar Candidatos
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handleDeleteClick(eleicao)} className="text-destructive focus:text-destructive flex items-center">
+                            <Trash2 className="mr-2 h-4 w-4"/>
+                            Remover
+                        </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    </TableCell>
+                </TableRow>
+                ))
+            ) : (
+                <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                        Nenhuma eleição encontrada.
+                    </TableCell>
+                </TableRow>
+            )}
           </TableBody>
         </Table>
       </Card>

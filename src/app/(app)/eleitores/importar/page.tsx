@@ -14,18 +14,21 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import api from '@/lib/api';
 
 export default function ImportarEleitoresPage() {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [previewData, setPreviewData] = useState<string[][]>([]);
+  const { toast } = useToast();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      handleFileUpload(selectedFile);
+      readAndPreviewFile(selectedFile);
     }
   };
   
@@ -35,7 +38,7 @@ export default function ImportarEleitoresPage() {
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
         const selectedFile = e.dataTransfer.files[0];
         setFile(selectedFile);
-        handleFileUpload(selectedFile);
+        readAndPreviewFile(selectedFile);
     }
   }
 
@@ -45,8 +48,8 @@ export default function ImportarEleitoresPage() {
   }
 
 
-  const handleFileUpload = (file: File) => {
-    setUploading(true);
+  const readAndPreviewFile = (file: File) => {
+    setUploading(false); // Apenas preview, não upload real ainda
     setUploadProgress(0);
 
     // Simulate file reading and parsing for preview
@@ -58,26 +61,37 @@ export default function ImportarEleitoresPage() {
       setPreviewData(data);
     };
     reader.readAsText(file);
+    setUploadProgress(100); // Marca como pronto para importação
+  };
 
-    // Simulate upload progress
+  const handleProcessImport = async () => {
+    if (!file) return;
+
+    // A API não possui um endpoint para importação de arquivos.
+    // O ideal seria um `POST /eleitores/importar` que aceita multipart/form-data
+    toast({
+        title: 'Funcionalidade Indisponível',
+        description: 'A API não possui um endpoint para importar eleitores. Ação simulada.',
+        variant: 'destructive'
+    });
+    console.log('Simulando importação do arquivo:', file.name);
+    setUploading(true);
+
+    // Simulação de progresso de importação
     const interval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 99) {
           clearInterval(interval);
           setUploading(false);
+           toast({
+            title: 'Importação (Simulada) Concluída',
+            description: "Os eleitores foram processados com sucesso.",
+          });
           return 100;
         }
-        return prev + 10;
+        return prev + 20;
       });
-    }, 200);
-  };
-
-  const handleProcessImport = () => {
-    alert('Importação processada! (Simulação)');
-    // Reset state
-    setFile(null);
-    setPreviewData([]);
-    setUploadProgress(0);
+    }, 500);
   };
 
   return (
@@ -136,7 +150,7 @@ export default function ImportarEleitoresPage() {
               </div>
                 {uploading && (
                     <div className="space-y-2">
-                        <p className="text-sm font-medium">Enviando...</p>
+                        <p className="text-sm font-medium">Processando importação...</p>
                         <Progress value={uploadProgress} />
                     </div>
                 )}

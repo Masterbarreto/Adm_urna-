@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { MoreHorizontal, PlusCircle, Search, Upload, Trash2, Edit } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,7 +24,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { mockEleitores } from '@/lib/mock-data';
 import type { Eleitor } from '@/lib/types';
 import {
   AlertDialog,
@@ -38,40 +37,63 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import api from '@/lib/api';
 
 export default function EleitoresPage() {
+  const [eleitores, setEleitores] = useState<Eleitor[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [eleitorToDelete, setEleitorToDelete] = useState<Eleitor | null>(null);
   const { toast } = useToast();
   const router = useRouter();
 
+  useEffect(() => {
+    async function fetchEleitores() {
+      try {
+        setLoading(true);
+        const response = await api.get('/eleitores');
+        setEleitores(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar eleitores:", error);
+        toast({
+          title: 'Erro ao carregar',
+          description: 'Não foi possível buscar a lista de eleitores.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchEleitores();
+  }, [toast]);
+
   const filteredEleitores = useMemo(() => {
-    return mockEleitores.filter(
+    return eleitores.filter(
       (e) =>
         e.nome.toLowerCase().includes(search.toLowerCase()) ||
         e.cpf.includes(search) ||
         e.matricula.includes(search)
     );
-  }, [search]);
+  }, [search, eleitores]);
   
   const handleDeleteClick = (eleitor: Eleitor) => {
     setEleitorToDelete(eleitor);
     setShowDeleteDialog(true);
   };
   
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (eleitorToDelete) {
-      console.log('Removendo eleitor:', eleitorToDelete.id);
-      // Aqui você chamaria a API para remover
+      // Sua API não tem um endpoint de deleção (DELETE /eleitores/{id})
+      // Adicione um no backend para esta funcionalidade operar.
+      console.log('Removendo eleitor (simulação):', eleitorToDelete.id);
       toast({
-        title: 'Eleitor Removido',
-        description: `O eleitor ${eleitorToDelete.nome} foi removido com sucesso.`,
+        title: 'Funcionalidade Indisponível',
+        description: `A API não possui um endpoint para remover eleitores. Ação simulada.`,
+        variant: 'destructive'
       });
       setShowDeleteDialog(false);
       setEleitorToDelete(null);
-      // Idealmente, você invalidaria o cache de dados aqui para forçar a atualização da lista
-      router.refresh();
     }
   };
 
@@ -120,7 +142,14 @@ export default function EleitoresPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredEleitores.slice(0, 10).map((eleitor: Eleitor) => ( // Limiting to 10 for display
+            {loading ? (
+                 <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
+                        Carregando eleitores...
+                    </TableCell>
+                </TableRow>
+            ) : filteredEleitores.length > 0 ? (
+              filteredEleitores.slice(0, 10).map((eleitor: Eleitor) => ( // Limiting to 10 for display
               <TableRow key={eleitor.id}>
                 <TableCell className="font-medium">{eleitor.nome}</TableCell>
                 <TableCell>{eleitor.cpf}</TableCell>
@@ -150,9 +179,9 @@ export default function EleitoresPage() {
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
-             {filteredEleitores.length === 0 && (
-              <TableRow>
+              ))
+            ) : (
+             <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">
                   Nenhum eleitor encontrado.
                 </TableCell>

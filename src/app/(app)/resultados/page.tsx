@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, Sigma, FileX, CircleSlash } from 'lucide-react';
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -17,42 +17,95 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { mockResultados, mockEleicoes } from '@/lib/mock-data';
+import type { Eleicao } from '@/lib/types';
 import ResultadosCharts from './charts';
 import { useToast } from '@/hooks/use-toast';
+import api from '@/lib/api';
 
-const statItems = [
-  {
-    title: 'Total de Votos',
-    value: mockResultados.totalVotos.toLocaleString('pt-BR'),
-    icon: Sigma,
-  },
-  {
-    title: 'Votos Brancos',
-    value: mockResultados.votosBrancos.toLocaleString('pt-BR'),
-    icon: CircleSlash,
-  },
-  {
-    title: 'Votos Nulos',
-    value: mockResultados.votosNulos.toLocaleString('pt-BR'),
-    icon: FileX,
-  },
-];
+type ResultadoData = {
+    totalVotos: number;
+    votosNulos: number;
+    votosBrancos: number;
+    votosPorCandidato: { nome: string; votos: number }[];
+}
 
 export default function ResultadosPage() {
   const { toast } = useToast();
-  const [selectedEleicaoId, setSelectedEleicaoId] = useState<string>(mockEleicoes[0]?.id || '');
+  const [eleicoes, setEleicoes] = useState<Eleicao[]>([]);
+  const [selectedEleicaoId, setSelectedEleicaoId] = useState<string>('');
+  const [resultados, setResultados] = useState<ResultadoData | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchEleicoes() {
+        try {
+            const response = await api.get('/eleicoes');
+            setEleicoes(response.data);
+            if (response.data.length > 0) {
+                setSelectedEleicaoId(String(response.data[0].id));
+            }
+        } catch (error) {
+            console.error("Erro ao buscar eleições:", error);
+            toast({ title: 'Erro', description: 'Não foi possível carregar as eleições.', variant: 'destructive' });
+        }
+    }
+    fetchEleicoes();
+  }, [toast]);
+
+  useEffect(() => {
+    async function fetchResultados() {
+        if (!selectedEleicaoId) return;
+        
+        // A API não possui um endpoint para buscar resultados.
+        // O ideal seria um GET /resultados/{eleicaoId}
+        console.log(`Buscando resultados para a eleição ${selectedEleicaoId} (simulação)`);
+        setLoading(true);
+        // Simulando uma chamada de API
+        setTimeout(() => {
+            setResultados({
+                totalVotos: 0,
+                votosBrancos: 0,
+                votosNulos: 0,
+                votosPorCandidato: [],
+            });
+             toast({
+                title: 'Funcionalidade Indisponível',
+                description: 'A API não possui um endpoint para buscar os resultados da eleição.',
+                variant: 'destructive',
+            });
+            setLoading(false);
+        }, 1000);
+    }
+    fetchResultados();
+  }, [selectedEleicaoId, toast]);
+
 
   const handleExport = () => {
     // Simulação de exportação
     toast({
-      title: "Exportação Iniciada",
+      title: "Exportação (Simulada) Iniciada",
       description: "O seu relatório de resultados está sendo gerado e o download começará em breve.",
     });
     console.log("Exportando relatório...");
   }
-  
-  const selectedEleicao = mockEleicoes.find(e => e.id === selectedEleicaoId);
+
+  const statItems = [
+    {
+        title: 'Total de Votos',
+        value: resultados?.totalVotos.toLocaleString('pt-BR') ?? '0',
+        icon: Sigma,
+    },
+    {
+        title: 'Votos Brancos',
+        value: resultados?.votosBrancos.toLocaleString('pt-BR') ?? '0',
+        icon: CircleSlash,
+    },
+    {
+        title: 'Votos Nulos',
+        value: resultados?.votosNulos.toLocaleString('pt-BR') ?? '0',
+        icon: FileX,
+    },
+  ];
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -66,19 +119,25 @@ export default function ResultadosPage() {
                 <SelectValue placeholder="Selecione uma eleição" />
               </SelectTrigger>
               <SelectContent>
-                {mockEleicoes.map(eleicao => (
-                  <SelectItem key={eleicao.id} value={eleicao.id}>{eleicao.nome}</SelectItem>
+                {eleicoes.map(eleicao => (
+                  <SelectItem key={eleicao.id} value={String(eleicao.id)}>{eleicao.nome}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <Button variant="outline" onClick={handleExport}>
+            <Button variant="outline" onClick={handleExport} disabled={!selectedEleicaoId || loading}>
               <Download className="mr-2 h-4 w-4" />
               Exportar Relatório
             </Button>
         </div>
       </PageHeader>
       <main>
-        {selectedEleicao ? (
+        {loading ? (
+             <Card>
+                <CardContent className="py-24 text-center text-muted-foreground">
+                    Carregando resultados...
+                </CardContent>
+            </Card>
+        ) : selectedEleicaoId && resultados ? (
             <>
                 <section className="grid gap-4 md:grid-cols-3">
                 {statItems.map((item) => (
@@ -96,7 +155,15 @@ export default function ResultadosPage() {
                 ))}
                 </section>
                 <section className="mt-8">
-                <ResultadosCharts />
+                    {resultados.votosPorCandidato.length > 0 ? (
+                        <ResultadosCharts chartData={resultados.votosPorCandidato} />
+                    ) : (
+                        <Card>
+                            <CardContent className="py-24 text-center text-muted-foreground">
+                                Nenhum voto computado para os candidatos desta eleição ainda.
+                            </CardContent>
+                        </Card>
+                    )}
                 </section>
             </>
         ) : (

@@ -29,28 +29,43 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { mockLogs } from '@/lib/mock-data';
 import type { Log } from '@/lib/types';
-
-const actionTypes = [...new Set(mockLogs.map(log => log.acao))];
+import api from '@/lib/api';
 
 export default function AuditoriaPage() {
+  const [logs, setLogs] = useState<Log[]>([]);
   const [actionFilter, setActionFilter] = useState('all');
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [isClient, setIsClient] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setIsClient(true);
+    async function fetchLogs() {
+      try {
+        setLoading(true);
+        const response = await api.get('/auditoria');
+        setLogs(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar logs de auditoria:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLogs();
   }, []);
+  
+  const actionTypes = useMemo(() => {
+      if(logs.length === 0) return [];
+      return [...new Set(logs.map(log => log.acao))];
+  }, [logs]);
 
 
   const filteredLogs = useMemo(() => {
-    return mockLogs.filter((log) => {
+    return logs.filter((log) => {
       const actionMatch = actionFilter === 'all' || log.acao === actionFilter;
       const dateMatch = !date || new Date(log.data).toDateString() === date.toDateString();
       return actionMatch && dateMatch;
     });
-  }, [actionFilter, date]);
+  }, [actionFilter, date, logs]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -103,15 +118,22 @@ export default function AuditoriaPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isClient && filteredLogs.map((log: Log) => (
-              <TableRow key={log.id}>
-                <TableCell>{format(new Date(log.data), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}</TableCell>
-                <TableCell><span className="font-mono text-sm">{log.acao}</span></TableCell>
-                <TableCell>{log.usuario}</TableCell>
-                <TableCell>{log.descricao}</TableCell>
-              </TableRow>
-            ))}
-             {filteredLogs.length === 0 && (
+            {loading ? (
+                 <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center">
+                        Carregando logs...
+                    </TableCell>
+                </TableRow>
+            ) : filteredLogs.length > 0 ? (
+                filteredLogs.map((log: Log) => (
+                    <TableRow key={log.id}>
+                        <TableCell>{format(new Date(log.data), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}</TableCell>
+                        <TableCell><span className="font-mono text-sm">{log.acao}</span></TableCell>
+                        <TableCell>{log.usuario.nome}</TableCell>
+                        <TableCell>{log.descricao}</TableCell>
+                    </TableRow>
+                ))
+            ) : (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">
                   Nenhum log encontrado.

@@ -34,10 +34,10 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Candidato, Eleicao, Urna } from '@/lib/types';
-import { mockCandidatos, mockUrnas } from '@/lib/mock-data';
 import { cn } from '@/lib/utils';
 import { Checkbox } from './ui/checkbox';
-import { ScrollArea } from './ui/scroll-area';
+import { useEffect, useState } from 'react';
+import api from '@/lib/api';
 
 const formSchema = z
   .object({
@@ -73,6 +73,9 @@ export default function EleicaoForm({
   defaultValues,
 }: EleicaoFormProps) {
   const router = useRouter();
+  const [urnas, setUrnas] = useState<Urna[]>([]);
+  const [candidatos, setCandidatos] = useState<Candidato[]>([]);
+  
   const form = useForm<EleicaoFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -83,10 +86,28 @@ export default function EleicaoForm({
       dataFim: defaultValues?.dataFim
         ? new Date(defaultValues.dataFim)
         : undefined,
-      urnaId: defaultValues?.urnaId || '',
+      urnaId: defaultValues?.urnaId ? String(defaultValues.urnaId) : '',
       candidatoIds: defaultValues?.candidatoIds || [],
     },
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Sua API não tem rotas para buscar urnas e candidatos,
+        // será preciso criá-las no backend.
+        // const [urnasRes, candidatosRes] = await Promise.all([
+        //   api.get('/urnas'),
+        //   api.get('/candidatos')
+        // ]);
+        // setUrnas(urnasRes.data);
+        // setCandidatos(candidatosRes.data);
+      } catch (error) {
+        console.error("Erro ao buscar dados para o formulário:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
     <Card>
@@ -210,11 +231,11 @@ export default function EleicaoForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {mockUrnas.map((urna: Urna) => (
-                        <SelectItem key={urna.id} value={urna.id}>
+                      {urnas.length > 0 ? urnas.map((urna: Urna) => (
+                        <SelectItem key={urna.id} value={String(urna.id)}>
                           {urna.nome} ({urna.id})
                         </SelectItem>
-                      ))}
+                      )) : <p className="p-4 text-sm text-muted-foreground">Nenhuma urna disponível</p>}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -245,18 +266,18 @@ export default function EleicaoForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {mockCandidatos.map((candidato: Candidato) => (
-                        <SelectItem key={candidato.id} value={candidato.id}>
+                      {candidatos.length > 0 ? candidatos.map((candidato: Candidato) => (
+                        <SelectItem key={candidato.id} value={String(candidato.id)}>
                           <div className="flex items-center">
                             <Checkbox
                                 className="mr-2"
-                                checked={field.value?.includes(candidato.id)}
+                                checked={field.value?.includes(String(candidato.id))}
                                 readOnly
                              />
                             {candidato.nome}
                           </div>
                         </SelectItem>
-                      ))}
+                      )) : <p className="p-4 text-sm text-muted-foreground">Nenhum candidato disponível</p>}
                     </SelectContent>
                   </Select>
                   <FormDescription>

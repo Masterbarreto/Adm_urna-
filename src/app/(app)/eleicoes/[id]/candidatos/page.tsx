@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { PlusCircle, Search, UserX } from 'lucide-react';
-import Image from 'next/image';
 
 import PageHeader from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -15,11 +14,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Checkbox } from '@/components/ui/checkbox';
-import { mockCandidatos, mockEleicoes } from '@/lib/mock-data';
 import type { Candidato, Eleicao } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -37,6 +34,7 @@ import {
     DialogFooter,
     DialogClose,
 } from '@/components/ui/dialog';
+import api from '@/lib/api';
 
 export default function GerenciarCandidatosEleicaoPage() {
   const params = useParams();
@@ -45,28 +43,48 @@ export default function GerenciarCandidatosEleicaoPage() {
   const eleicaoId = params.id as string;
 
   const [eleicao, setEleicao] = useState<Eleicao | null>(null);
+  const [allCandidatos, setAllCandidatos] = useState<Candidato[]>([]);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // IDs dos candidatos atualmente associados à eleição
-  const [associatedCandidateIds, setAssociatedCandidateIds] = useState<string[]>([]);
+  const [associatedCandidateIds, setAssociatedCandidateIds] = useState<number[]>([]);
   
   useEffect(() => {
-    const currentEleicao = mockEleicoes.find(e => e.id === eleicaoId) || null;
-    if (currentEleicao) {
-        setEleicao(currentEleicao);
-        const initialCandidates = mockCandidatos.filter(c => c.eleicaoId === eleicaoId).map(c => c.id);
-        setAssociatedCandidateIds(initialCandidates);
-    } else {
-        // Lidar com eleição não encontrada, talvez redirecionar
-        toast({ title: 'Erro', description: 'Eleição não encontrada.', variant: 'destructive' });
-        router.push('/eleicoes');
+    const fetchEleicaoEChandidatos = async () => {
+        try {
+            // O ideal seria um endpoint /eleicoes/{id} que já retorna os candidatos
+            const [eleicaoRes, candidatosRes] = await Promise.all([
+                api.get('/eleicoes'), // Não há GET /eleicoes/{id}, então buscamos todos
+                api.get('/candidatos')
+            ]);
+            
+            const currentEleicao = eleicaoRes.data.find((e: Eleicao) => e.id === Number(eleicaoId)) || null;
+            
+            if (currentEleicao) {
+                setEleicao(currentEleicao);
+                setAllCandidatos(candidatosRes.data);
+                // Sua API não parece retornar os candidatos associados a uma eleição.
+                // Simulando que os candidatos têm uma `eleicaoId`
+                const initialCandidates = candidatosRes.data
+                    .filter((c: Candidato) => c.eleicaoId === Number(eleicaoId))
+                    .map((c: Candidato) => c.id);
+                setAssociatedCandidateIds(initialCandidates);
+            } else {
+                toast({ title: 'Erro', description: 'Eleição não encontrada.', variant: 'destructive' });
+                router.push('/eleicoes');
+            }
+        } catch (error) {
+            console.error("Erro ao buscar dados da eleição:", error);
+            toast({ title: 'Erro', description: 'Não foi possível carregar os dados da eleição.', variant: 'destructive' });
+        }
+    };
+    if(eleicaoId) {
+        fetchEleicaoEChandidatos();
     }
   }, [eleicaoId, router, toast]);
 
   const associatedCandidates = useMemo(() => {
-    return mockCandidatos.filter(c => associatedCandidateIds.includes(c.id));
-  }, [associatedCandidateIds]);
+    return allCandidatos.filter(c => associatedCandidateIds.includes(c.id));
+  }, [associatedCandidateIds, allCandidatos]);
   
   const filteredAssociatedCandidates = useMemo(() => {
      return associatedCandidates.filter(
@@ -77,20 +95,23 @@ export default function GerenciarCandidatosEleicaoPage() {
 
 
   const availableCandidates = useMemo(() => {
-    return mockCandidatos.filter(c => !associatedCandidateIds.includes(c.id));
-  }, [associatedCandidateIds]);
+    return allCandidatos.filter(c => !associatedCandidateIds.includes(c.id));
+  }, [associatedCandidateIds, allCandidatos]);
 
-  const handleRemoveCandidate = (candidateId: string) => {
+  const handleRemoveCandidate = (candidateId: number) => {
+    // Falta endpoint na API para desassociar candidato
     setAssociatedCandidateIds(ids => ids.filter(id => id !== candidateId));
-    toast({ title: 'Candidato Desvinculado', description: 'O candidato foi removido desta eleição.' });
+    toast({ title: 'Candidato Desvinculado (Simulação)', description: 'O candidato foi removido desta eleição.' });
   };
   
   const [selectedCandidate, setSelectedCandidate] = useState<string>('');
 
   const handleAddCandidate = () => {
-    if(selectedCandidate && !associatedCandidateIds.includes(selectedCandidate)){
-        setAssociatedCandidateIds(ids => [...ids, selectedCandidate]);
-        toast({ title: 'Candidato Adicionado', description: 'O candidato foi adicionado à eleição.' });
+    // Falta endpoint na API para associar candidato
+    const candidateIdNum = Number(selectedCandidate);
+    if(candidateIdNum && !associatedCandidateIds.includes(candidateIdNum)){
+        setAssociatedCandidateIds(ids => [...ids, candidateIdNum]);
+        toast({ title: 'Candidato Adicionado (Simulação)', description: 'O candidato foi adicionado à eleição.' });
     }
     setSelectedCandidate('');
     setIsModalOpen(false);
@@ -176,7 +197,7 @@ export default function GerenciarCandidatosEleicaoPage() {
                     <SelectContent>
                         {availableCandidates.length > 0 ? (
                             availableCandidates.map(c => (
-                                <SelectItem key={c.id} value={c.id}>
+                                <SelectItem key={c.id} value={String(c.id)}>
                                     {c.nome}
                                 </SelectItem>
                             ))
