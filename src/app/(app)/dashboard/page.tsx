@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,18 +21,19 @@ import {
   CheckCircle,
   Activity,
   AlertCircle,
+  XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 type DashboardSummary = {
-    statusUrna: string;
-    conexaoUrna: 'Online' | 'Offline';
-    totalVotos: number;
-    contagemEleicoes: number;
-    contagemCandidatos: number;
-    contagemEleitores: number;
+    status_urna: 'ativa' | 'inativa';
+    conexao_urna: 'Online' | 'Offline';
+    total_votos: number;
+    contagem_eleicoes: number;
+    contagem_candidatos: number;
+    contagem_eleitores: number;
 }
 
 const navItems = [
@@ -53,7 +55,7 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         const response = await api.get('/v1/dashboard/summary');
-        setSummary(response.data.data);
+        setSummary(response.data.data); 
       } catch (error) {
         console.error("Erro ao buscar resumo do dashboard:", error);
         toast({
@@ -71,19 +73,19 @@ export default function DashboardPage() {
   const statItems = [
     {
       title: 'Status da Urna',
-      value: summary?.statusUrna || '...',
-      icon: summary?.statusUrna === 'Ativa' ? Activity : AlertCircle,
-      color: summary?.statusUrna === 'Ativa' ? 'text-success' : 'text-destructive',
+      value: summary?.status_urna ? (summary.status_urna.charAt(0).toUpperCase() + summary.status_urna.slice(1)) : '...',
+      icon: summary?.status_urna === 'ativa' ? Activity : XCircle,
+      color: summary?.status_urna === 'ativa' ? 'text-success' : 'text-destructive',
     },
     {
       title: 'Conexão da Urna',
-      value: summary?.conexaoUrna || '...',
-      icon: summary?.conexaoUrna === 'Online' ? Wifi : AlertCircle,
-      color: summary?.conexaoUrna === 'Online' ? 'text-accent' : 'text-destructive',
+      value: summary?.conexao_urna || '...',
+      icon: summary?.conexao_urna === 'Online' ? Wifi : AlertCircle,
+      color: summary?.conexao_urna === 'Online' ? 'text-accent' : 'text-destructive',
     },
     {
       title: 'Total de Votos',
-      value: summary?.totalVotos?.toLocaleString('pt-BR') ?? '0',
+      value: summary?.total_votos?.toLocaleString('pt-BR') ?? '0',
       icon: VoteIcon,
       color: 'text-foreground',
     },
