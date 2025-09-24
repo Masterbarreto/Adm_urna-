@@ -66,7 +66,7 @@ export default function CandidatosPage() {
 
   useEffect(() => {
     fetchCandidatos();
-  }, []);
+  }, [toast]);
 
 
   const filteredCandidatos = useMemo(() => {
