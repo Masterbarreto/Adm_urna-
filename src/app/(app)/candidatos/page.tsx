@@ -70,6 +70,7 @@ export default function CandidatosPage() {
 
 
   const filteredCandidatos = useMemo(() => {
+    if (!candidatos) return [];
     return candidatos.filter(
       (c) =>
         c.nome.toLowerCase().includes(search.toLowerCase()) ||

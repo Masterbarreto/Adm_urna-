@@ -31,7 +31,21 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'api-urna.onrender.com',
+        port: '',
+        pathname: '/**',
+      }
     ],
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://api-urna.onrender.com/api/:path*',
+      },
+    ]
   },
 };
 
