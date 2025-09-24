@@ -31,7 +31,7 @@ import api from '@/lib/api';
 
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
-  numero: z.coerce.number().min(1, 'O número deve ser maior que zero.'),
+  numero: z.string().min(1, 'O número é obrigatório.'),
   partido: z.string().optional(),
   id_eleicao: z.string({ required_error: 'Selecione uma eleição.' }),
   foto: z.any().optional(),
@@ -54,7 +54,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
-      numero: defaultValues?.numero || undefined,
+      numero: defaultValues?.numero || '',
       partido: defaultValues?.partido || '',
       id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : undefined,
     },
@@ -136,7 +136,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
                             <FormItem>
                                 <FormLabel>Número</FormLabel>
                                 <FormControl>
-                                <Input type="number" placeholder="00" {...field} />
+                                <Input type="text" placeholder="00" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>

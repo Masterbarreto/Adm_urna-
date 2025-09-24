@@ -77,7 +77,7 @@ export default function CandidatosPage() {
     return candidatos.filter(
       (c) =>
         c.nome.toLowerCase().includes(search.toLowerCase()) ||
-        String(c.numero).includes(search)
+        c.numero.includes(search)
     );
   }, [search, candidatos]);
 

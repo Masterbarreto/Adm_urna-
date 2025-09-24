@@ -18,7 +18,7 @@ export type Eleicao = {
 export type Candidato = {
     id: string;
     nome: string;
-    numero: number;
+    numero: string;
     partido: string;
     foto_url: string;
     id_eleicao: string;

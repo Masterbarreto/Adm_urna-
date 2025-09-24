@@ -44,7 +44,7 @@ export default function EditarCandidatoPage() {
         if (data.foto && typeof data.foto === 'object') {
             const formData = new FormData();
             formData.append('nome', data.nome);
-            formData.append('numero', String(data.numero));
+            formData.append('numero', data.numero);
             if (data.partido) formData.append('partido', data.partido);
             formData.append('id_eleicao', data.id_eleicao);
             formData.append('foto', data.foto);
