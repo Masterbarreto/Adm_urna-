@@ -53,7 +53,7 @@ export default function EleitoresPage() {
         const response = await api.get('/v1/eleitores', {
           params: { search: search, page: 1, limit: 20 } // Adicionando paginação básica
         });
-        setEleitores(response.data.data);
+        setEleitores(response.data.data.eleitores || []);
       } catch (error) {
         console.error("Erro ao buscar eleitores:", error);
         toast({
