@@ -13,7 +13,11 @@ export default function NovaUrnaPage() {
 
   const handleSubmit = async (data: Omit<Urna, 'id' | 'status' | 'ultimaAtividade'>) => {
     try {
-      await api.post('/v1/urnas', data);
+      const payload = {
+        nome: data.nome,
+        local: data.local,
+      };
+      await api.post('/v1/urnas', payload);
       
       toast({
         title: 'Urna Criada',
