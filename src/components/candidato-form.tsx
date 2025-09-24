@@ -62,9 +62,11 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
       const fetchEleicoes = async () => {
           try {
               const response = await api.get('/v1/eleicoes');
-              setEleicoes(response.data.data);
+              const electionsData = response.data?.data?.eleicoes || [];
+              setEleicoes(Array.isArray(electionsData) ? electionsData : []);
           } catch (error) {
               console.error("Erro ao buscar eleições:", error);
+              setEleicoes([]);
           }
       };
       fetchEleicoes();
@@ -159,7 +161,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
                                         </FormControl>
                                         <SelectContent>
                                             {eleicoes.map((eleicao: Eleicao) => (
-                                                <SelectItem key={eleicao.id} value={String(eleicao.id)}>{eleicao.nome}</SelectItem>
+                                                <SelectItem key={eleicao.id} value={String(eleicao.id)}>{eleicao.titulo}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>

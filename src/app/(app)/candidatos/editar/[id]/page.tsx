@@ -21,7 +21,7 @@ export default function EditarCandidatoPage() {
       const fetchCandidato = async () => {
         try {
           const response = await api.get(`/v1/candidatos/${candidatoId}`);
-          setCandidato(response.data);
+          setCandidato(response.data.data);
         } catch (error) {
           console.error("Erro ao buscar candidato:", error);
           toast({
