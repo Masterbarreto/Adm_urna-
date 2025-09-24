@@ -142,7 +142,7 @@ export default function ResultadosPage() {
                 <SelectValue placeholder="Selecione uma eleição" />
               </SelectTrigger>
               <SelectContent>
-                {eleicoes.map(eleicao => (
+                {Array.isArray(eleicoes) && eleicoes.map(eleicao => (
                   <SelectItem key={eleicao.id} value={String(eleicao.id)}>{eleicao.nome}</SelectItem>
                 ))}
               </SelectContent>
