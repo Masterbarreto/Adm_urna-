@@ -53,7 +53,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
-      numero: defaultValues?.numero || undefined,
+      numero: defaultValues?.numero || '',
       id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : '',
     },
   });
