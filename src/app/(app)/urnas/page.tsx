@@ -58,7 +58,7 @@ export default function UrnasPage() {
       try {
         setLoading(true);
         const response = await api.get('/v1/urnas');
-        setUrnas(response.data.data); // A API retorna os dados dentro de uma chave "data"
+        setUrnas(response.data.data.urnas || []); // A API retorna os dados em data.urnas
       } catch (error) {
         console.error("Erro ao buscar urnas:", error);
         toast({
@@ -73,7 +73,7 @@ export default function UrnasPage() {
 
   useEffect(() => {
     fetchUrnas();
-  }, []);
+  }, [toast]);
   
   const handleDeleteClick = (urna: Urna) => {
     setUrnaToDelete(urna);
@@ -178,7 +178,7 @@ export default function UrnasPage() {
              ) : (
                 <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                        não ta achando as urnas  GET https://api-urna.onrender.com/v1/urnas
+                        Nenhuma urna encontrada.
                     </TableCell>
                 </TableRow>
              )}
