@@ -178,7 +178,7 @@ export default function UrnasPage() {
              ) : (
                 <TableRow>
                     <TableCell colSpan={5} className="h-24 text-center">
-                        Nenhuma urna encontrada.
+                        não ta achando as urnas  GET https://api-urna.onrender.com/v1/urnas
                     </TableCell>
                 </TableRow>
              )}
