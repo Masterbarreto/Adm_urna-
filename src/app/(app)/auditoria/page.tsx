@@ -43,7 +43,7 @@ export default function AuditoriaPage() {
       try {
         setLoading(true);
         const response = await api.get('/v1/auditoria');
-        setLogs(response.data);
+        setLogs(response.data.data);
       } catch (error) {
         console.error("Erro ao buscar logs de auditoria:", error);
       } finally {
@@ -124,7 +124,7 @@ export default function AuditoriaPage() {
                         Carregando logs...
                     </TableCell>
                 </TableRow>
-            ) : filteredLogs.length > 0 ? (
+            ) : Array.isArray(filteredLogs) && filteredLogs.length > 0 ? (
                 filteredLogs.map((log: Log) => (
                     <TableRow key={log.id}>
                         <TableCell>{format(new Date(log.data), "dd/MM/yyyy HH:mm:ss", { locale: ptBR })}</TableCell>
