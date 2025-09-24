@@ -35,7 +35,7 @@ export default function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      email: 'admin@urna.com',
       password: '',
     },
   });
@@ -45,11 +45,11 @@ export default function LoginPage() {
     try {
       const response = await api.post('/auth/login', {
         email: values.email,
-        senha: values.password, // Sua API espera "senha"
+        senha: values.password,
       });
       
-      // A API retorna o token aninhado dentro da propriedade 'token'
-      const { token } = response.data;
+      // A API retorna o token aninhado dentro da propriedade 'data.token'
+      const { token } = response.data.data;
       
       if (token) {
         localStorage.setItem('authToken', token);
