@@ -19,7 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import type { Urna } from '@/lib/types';
 
 const formSchema = z.object({
-  nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+  numero: z.string().min(1, 'O número é obrigatório.'),
   localizacao: z.string().min(3, 'A localização deve ter pelo menos 3 caracteres.'),
 });
 
@@ -35,7 +35,7 @@ export default function UrnaForm({ onSubmit, defaultValues }: UrnaFormProps) {
   const form = useForm<UrnaFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nome: defaultValues?.nome || '',
+      numero: defaultValues?.numero || '',
       localizacao: defaultValues?.localizacao || '',
     },
   });
@@ -47,12 +47,12 @@ export default function UrnaForm({ onSubmit, defaultValues }: UrnaFormProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="nome"
+              name="numero"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome da Urna</FormLabel>
+                  <FormLabel>Número da Urna</FormLabel>
                   <FormControl>
-                    <Input placeholder="Urna da Seção 101" {...field} />
+                    <Input placeholder="001" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

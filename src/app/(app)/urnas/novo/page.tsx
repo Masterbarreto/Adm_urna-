@@ -14,7 +14,7 @@ export default function NovaUrnaPage() {
   const handleSubmit = async (data: Omit<Urna, 'id' | 'status' | 'ultimaAtividade'>) => {
     try {
       const payload = {
-        nome: data.nome,
+        numero: data.numero,
         localizacao: data.localizacao,
       };
       await api.post('/v1/urnas', payload);
@@ -25,11 +25,11 @@ export default function NovaUrnaPage() {
       });
       router.push('/urnas');
       router.refresh();
-    } catch(error) {
+    } catch(error: any) {
         console.error('Erro ao criar urna:', error);
         toast({
             title: 'Erro ao Criar',
-            description: 'Não foi possível criar a urna.',
+            description: error.response?.data?.message || 'Não foi possível criar a urna.',
             variant: 'destructive',
         });
     }

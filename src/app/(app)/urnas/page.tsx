@@ -86,7 +86,7 @@ export default function UrnasPage() {
         await api.delete(`/v1/urnas/${urnaToDelete.id}`);
         toast({
           title: 'Urna Removida',
-          description: `A urna ${urnaToDelete.nome} foi removida com sucesso.`,
+          description: `A urna ${urnaToDelete.numero} foi removida com sucesso.`,
         });
         fetchUrnas(); // Atualiza a lista
       } catch (error) {
@@ -121,8 +121,7 @@ export default function UrnasPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID da Urna</TableHead>
-              <TableHead>Nome</TableHead>
+              <TableHead>Número</TableHead>
               <TableHead>Localização</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Última Atividade</TableHead>
@@ -134,15 +133,14 @@ export default function UrnasPage() {
           <TableBody>
              {loading ? (
                 <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
+                    <TableCell colSpan={5} className="h-24 text-center">
                         Carregando urnas...
                     </TableCell>
                 </TableRow>
             ) : urnas.length > 0 ? (
                 urnas.map((urna) => (
                 <TableRow key={urna.id}>
-                    <TableCell className="font-medium">{urna.id}</TableCell>
-                    <TableCell>{urna.nome}</TableCell>
+                    <TableCell className="font-medium">{urna.numero}</TableCell>
                     <TableCell>{urna.localizacao}</TableCell>
                     <TableCell>
                     <Badge variant={urna.status === 'online' ? 'success' : 'destructive'}>
@@ -179,7 +177,7 @@ export default function UrnasPage() {
                 ))
              ) : (
                 <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
+                    <TableCell colSpan={5} className="h-24 text-center">
                         Nenhuma urna encontrada.
                     </TableCell>
                 </TableRow>
@@ -194,7 +192,7 @@ export default function UrnasPage() {
             <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
               Essa ação não pode ser desfeita. Isso removerá permanentemente a urna
-              <span className="font-bold"> {urnaToDelete?.nome} </span>
+              <span className="font-bold"> {urnaToDelete?.numero} </span>
               dos nossos servidores.
             </AlertDialogDescription>
           </AlertDialogHeader>

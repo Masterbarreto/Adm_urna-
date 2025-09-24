@@ -43,7 +43,7 @@ export default function EditarUrnaPage() {
   const handleSubmit = async (data: Omit<Urna, 'id' | 'status' | 'ultimaAtividade'>) => {
     try {
       const payload = {
-        nome: data.nome,
+        numero: data.numero,
         localizacao: data.localizacao,
       };
       await api.put(`/v1/urnas/${urnaId}`, payload);
@@ -53,11 +53,11 @@ export default function EditarUrnaPage() {
       });
       router.push('/urnas');
       router.refresh();
-    } catch(error) {
+    } catch(error: any) {
        console.error("Erro ao atualizar urna:", error);
        toast({
           title: 'Erro ao atualizar',
-          description: 'Não foi possível atualizar os dados da urna.',
+          description: error.response?.data?.message || 'Não foi possível atualizar os dados da urna.',
           variant: 'destructive'
         });
     }

@@ -1,6 +1,6 @@
 export type Urna = {
   id: number;
-  nome: string;
+  numero: string;
   localizacao: string;
   status: 'online' | 'offline';
   ultimaAtividade: string;
