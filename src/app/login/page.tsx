@@ -99,7 +99,7 @@ export default function LoginPage() {
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="admin@voto.seg.br"
+                        placeholder="admin@urna.com"
                         {...field}
                         disabled={loading}
                       />
