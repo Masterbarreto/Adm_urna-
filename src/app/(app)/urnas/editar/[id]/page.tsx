@@ -42,7 +42,11 @@ export default function EditarUrnaPage() {
 
   const handleSubmit = async (data: Omit<Urna, 'id' | 'status' | 'ultimaAtividade'>) => {
     try {
-      await api.put(`/v1/urnas/${urnaId}`, data);
+      const payload = {
+        nome: data.nome,
+        localizacao: data.localizacao,
+      };
+      await api.put(`/v1/urnas/${urnaId}`, payload);
       toast({
         title: 'Urna Atualizada',
         description: 'Os dados da urna foram atualizados com sucesso.'
@@ -59,7 +63,7 @@ export default function EditarUrnaPage() {
     }
   };
   
-  if (loading) {
+  if (loading || !urna) {
     return (
         <div className="p-4 sm:p-6 lg:p-8">
             <PageHeader title="Carregando..." backHref="/urnas" />
@@ -75,7 +79,7 @@ export default function EditarUrnaPage() {
         description="Atualize os dados da urna."
         backHref="/urnas"
       />
-      <UrnaForm onSubmit={handleSubmit} defaultValues={urna!} />
+      <UrnaForm onSubmit={handleSubmit} defaultValues={urna} />
     </div>
   );
 }

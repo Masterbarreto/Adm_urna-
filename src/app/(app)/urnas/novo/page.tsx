@@ -15,7 +15,7 @@ export default function NovaUrnaPage() {
     try {
       const payload = {
         nome: data.nome,
-        local: data.local,
+        localizacao: data.localizacao,
       };
       await api.post('/v1/urnas', payload);
       

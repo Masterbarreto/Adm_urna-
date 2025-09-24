@@ -20,7 +20,7 @@ import type { Urna } from '@/lib/types';
 
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
-  local: z.string().min(3, 'O local deve ter pelo menos 3 caracteres.'),
+  localizacao: z.string().min(3, 'A localização deve ter pelo menos 3 caracteres.'),
 });
 
 type UrnaFormValues = z.infer<typeof formSchema>;
@@ -36,7 +36,7 @@ export default function UrnaForm({ onSubmit, defaultValues }: UrnaFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       nome: defaultValues?.nome || '',
-      local: defaultValues?.local || '',
+      localizacao: defaultValues?.localizacao || '',
     },
   });
 
@@ -60,7 +60,7 @@ export default function UrnaForm({ onSubmit, defaultValues }: UrnaFormProps) {
             />
             <FormField
               control={form.control}
-              name="local"
+              name="localizacao"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Localização</FormLabel>

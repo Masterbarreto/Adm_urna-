@@ -123,7 +123,7 @@ export default function UrnasPage() {
             <TableRow>
               <TableHead>ID da Urna</TableHead>
               <TableHead>Nome</TableHead>
-              <TableHead>Local</TableHead>
+              <TableHead>Localização</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Última Atividade</TableHead>
               <TableHead>
@@ -143,7 +143,7 @@ export default function UrnasPage() {
                 <TableRow key={urna.id}>
                     <TableCell className="font-medium">{urna.id}</TableCell>
                     <TableCell>{urna.nome}</TableCell>
-                    <TableCell>{urna.local}</TableCell>
+                    <TableCell>{urna.localizacao}</TableCell>
                     <TableCell>
                     <Badge variant={urna.status === 'online' ? 'success' : 'destructive'}>
                         {urna.status === 'online' ? <CheckCircle className="mr-1.5 h-4 w-4" /> : <XCircle className="mr-1.5 h-4 w-4" />}

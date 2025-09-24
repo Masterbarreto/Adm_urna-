@@ -1,7 +1,7 @@
 export type Urna = {
   id: number;
   nome: string;
-  local: string;
+  localizacao: string;
   status: 'online' | 'offline';
   ultimaAtividade: string;
 };
