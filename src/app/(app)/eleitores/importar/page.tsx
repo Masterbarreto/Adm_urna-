@@ -56,7 +56,7 @@ export default function ImportarEleitoresPage() {
     formData.append('file', file);
 
     try {
-      const response = await api.post('/eleitores/importar', formData, {
+      const response = await api.post('/v1/eleitores/importar', formData, {
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / (progressEvent.total ?? 1)

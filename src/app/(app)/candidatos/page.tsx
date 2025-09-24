@@ -50,7 +50,7 @@ export default function CandidatosPage() {
   const fetchCandidatos = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/candidatos');
+        const response = await api.get('/v1/candidatos');
         setCandidatos(response.data.data);
       } catch (error) {
         console.error("Erro ao buscar candidatos:", error);
@@ -86,7 +86,7 @@ export default function CandidatosPage() {
   const handleConfirmDelete = async () => {
     if (candidateToDelete) {
        try {
-        await api.delete(`/candidatos/${candidateToDelete.id}`);
+        await api.delete(`/v1/candidatos/${candidateToDelete.id}`);
         toast({
           title: 'Candidato Removido',
           description: `O candidato ${candidateToDelete.nome} foi removido com sucesso.`,

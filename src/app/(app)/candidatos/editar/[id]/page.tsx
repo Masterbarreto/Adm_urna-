@@ -20,7 +20,7 @@ export default function EditarCandidatoPage() {
     if (candidatoId) {
       const fetchCandidato = async () => {
         try {
-          const response = await api.get(`/candidatos/${candidatoId}`);
+          const response = await api.get(`/v1/candidatos/${candidatoId}`);
           setCandidato(response.data);
         } catch (error) {
           console.error("Erro ao buscar candidato:", error);
@@ -38,7 +38,7 @@ export default function EditarCandidatoPage() {
 
   const handleSubmit = async (data: FormData) => {
     try {
-        await api.put(`/candidatos/${candidatoId}`, data, {
+        await api.put(`/v1/candidatos/${candidatoId}`, data, {
             headers: {
             'Content-Type': 'multipart/form-data',
             },

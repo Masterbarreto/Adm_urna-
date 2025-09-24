@@ -53,8 +53,8 @@ export default function GerenciarCandidatosEleicaoPage() {
         try {
             // O ideal seria um endpoint /eleicoes/{id} que já retorna os candidatos
             const [eleicaoRes, candidatosRes] = await Promise.all([
-                api.get('/eleicoes'), // Não há GET /eleicoes/{id}, então buscamos todos
-                api.get('/candidatos')
+                api.get('/v1/eleicoes'), // Não há GET /eleicoes/{id}, então buscamos todos
+                api.get('/v1/candidatos')
             ]);
             
             const currentEleicao = eleicaoRes.data.find((e: Eleicao) => e.id === Number(eleicaoId)) || null;

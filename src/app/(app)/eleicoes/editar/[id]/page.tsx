@@ -21,7 +21,7 @@ export default function EditarEleicaoPage() {
     if (eleicaoId) {
       const fetchEleicao = async () => {
          try {
-          const response = await api.get(`/eleicoes/${eleicaoId}`);
+          const response = await api.get(`/v1/eleicoes/${eleicaoId}`);
           setEleicao(response.data);
         } catch (error) {
           console.error("Erro ao buscar eleição:", error);
@@ -46,7 +46,7 @@ export default function EditarEleicaoPage() {
         id_urna: parseInt(data.urnaId),
       };
 
-      await api.put(`/eleicoes/${eleicaoId}`, payload);
+      await api.put(`/v1/eleicoes/${eleicaoId}`, payload);
 
       toast({
         title: 'Eleição Atualizada',

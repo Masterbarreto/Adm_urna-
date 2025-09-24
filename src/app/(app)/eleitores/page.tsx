@@ -50,7 +50,7 @@ export default function EleitoresPage() {
       try {
         setLoading(true);
         // A API usa `search` para buscar, então vamos passar o valor do estado
-        const response = await api.get('/eleitores', {
+        const response = await api.get('/v1/eleitores', {
           params: { search: search, page: 1, limit: 20 } // Adicionando paginação básica
         });
         setEleitores(response.data.data);
@@ -82,7 +82,7 @@ export default function EleitoresPage() {
   const handleConfirmDelete = async () => {
     if (eleitorToDelete) {
       try {
-        await api.delete(`/eleitores/${eleitorToDelete.id}`);
+        await api.delete(`/v1/eleitores/${eleitorToDelete.id}`);
         toast({
           title: 'Eleitor Removido',
           description: `O eleitor ${eleitorToDelete.nome} foi removido.`,

@@ -22,7 +22,7 @@ export default function EditarUrnaPage() {
        const fetchUrna = async () => {
         try {
           setLoading(true);
-          const response = await api.get(`/urnas/${urnaId}`);
+          const response = await api.get(`/v1/urnas/${urnaId}`);
           setUrna(response.data);
         } catch (error) {
           console.error("Erro ao buscar urna:", error);
@@ -42,7 +42,7 @@ export default function EditarUrnaPage() {
 
   const handleSubmit = async (data: Omit<Urna, 'id' | 'status' | 'ultimaAtividade'>) => {
     try {
-      await api.put(`/urnas/${urnaId}`, data);
+      await api.put(`/v1/urnas/${urnaId}`, data);
       toast({
         title: 'Urna Atualizada',
         description: 'Os dados da urna foram atualizados com sucesso.'

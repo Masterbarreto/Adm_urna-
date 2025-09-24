@@ -49,7 +49,7 @@ export default function EleicoesPage() {
   async function fetchEleicoes() {
       try {
         setLoading(true);
-        const response = await api.get('/eleicoes');
+        const response = await api.get('/v1/eleicoes');
         setEleicoes(response.data.data);
       } catch (error) {
         console.error("Erro ao buscar eleições:", error);
@@ -75,7 +75,7 @@ export default function EleicoesPage() {
   const handleConfirmDelete = async () => {
     if (eleicaoToDelete) {
       try {
-        await api.delete(`/eleicoes/${eleicaoToDelete.id}`);
+        await api.delete(`/v1/eleicoes/${eleicaoToDelete.id}`);
         toast({
           title: 'Eleição Removida',
           description: `A eleição "${eleicaoToDelete.nome}" foi removida.`,

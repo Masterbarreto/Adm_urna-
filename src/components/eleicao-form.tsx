@@ -84,7 +84,7 @@ export default function EleicaoForm({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const urnasRes = await api.get('/urnas');
+        const urnasRes = await api.get('/v1/urnas');
         setUrnas(urnasRes.data.data);
       } catch (error) {
         console.error("Erro ao buscar dados para o formulário:", error);

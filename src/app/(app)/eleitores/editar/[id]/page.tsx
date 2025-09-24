@@ -20,7 +20,7 @@ export default function EditarEleitorPage() {
     if (eleitorId) {
       const fetchEleitor = async () => {
         try {
-          const response = await api.get(`/eleitores/${eleitorId}`);
+          const response = await api.get(`/v1/eleitores/${eleitorId}`);
           setEleitor(response.data);
         } catch (error) {
           console.error("Erro ao buscar eleitor:", error);
@@ -38,7 +38,7 @@ export default function EditarEleitorPage() {
 
   const handleSubmit = async (data: Omit<Eleitor, 'id'>) => {
     try {
-        await api.put(`/eleitores/${eleitorId}`, data);
+        await api.put(`/v1/eleitores/${eleitorId}`, data);
         toast({
             title: 'Eleitor Atualizado',
             description: 'Os dados do eleitor foram atualizados com sucesso.',

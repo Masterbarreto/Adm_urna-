@@ -39,7 +39,7 @@ export default function ResultadosPage() {
   useEffect(() => {
     async function fetchEleicoes() {
         try {
-            const response = await api.get('/eleicoes');
+            const response = await api.get('/v1/eleicoes');
             setEleicoes(response.data.data);
             if (response.data.data.length > 0) {
                 // Seleciona a primeira eleição por padrão
@@ -59,7 +59,7 @@ export default function ResultadosPage() {
         
         setLoading(true);
         try {
-            const response = await api.get(`/resultados/${selectedEleicaoId}`);
+            const response = await api.get(`/v1/resultados/${selectedEleicaoId}`);
             setResultados(response.data);
         } catch (error) {
             console.error(`Erro ao buscar resultados para a eleição ${selectedEleicaoId}:`, error);
@@ -80,7 +80,7 @@ export default function ResultadosPage() {
   const handleExport = async () => {
     if(!selectedEleicaoId) return;
     try {
-        const response = await api.get(`/resultados/${selectedEleicaoId}/exportar`, {
+        const response = await api.get(`/v1/resultados/${selectedEleicaoId}/exportar`, {
             responseType: 'blob', // Importante para lidar com arquivos
         });
         

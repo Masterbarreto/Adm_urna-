@@ -13,7 +13,7 @@ export default function NovoEleitorPage() {
 
   const handleSubmit = async (data: Omit<Eleitor, 'id'>) => {
     try {
-      await api.post('/eleitores', data);
+      await api.post('/v1/eleitores', data);
       toast({
         title: 'Eleitor Criado',
         description: 'O novo eleitor foi adicionado com sucesso.',

@@ -57,7 +57,7 @@ export default function UrnasPage() {
   const fetchUrnas = async () => {
       try {
         setLoading(true);
-        const response = await api.get('/urnas');
+        const response = await api.get('/v1/urnas');
         setUrnas(response.data.data); // A API retorna os dados dentro de uma chave "data"
       } catch (error) {
         console.error("Erro ao buscar urnas:", error);
@@ -83,7 +83,7 @@ export default function UrnasPage() {
   const handleConfirmDelete = async () => {
     if (urnaToDelete) {
       try {
-        await api.delete(`/urnas/${urnaToDelete.id}`);
+        await api.delete(`/v1/urnas/${urnaToDelete.id}`);
         toast({
           title: 'Urna Removida',
           description: `A urna ${urnaToDelete.nome} foi removida com sucesso.`,

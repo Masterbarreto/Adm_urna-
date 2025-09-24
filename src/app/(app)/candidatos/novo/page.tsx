@@ -12,7 +12,7 @@ export default function NovoCandidatoPage() {
 
   const handleSubmit = async (data: FormData) => {
     try {
-      await api.post('/candidatos', data, {
+      await api.post('/v1/candidatos', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

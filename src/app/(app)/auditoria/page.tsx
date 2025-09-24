@@ -42,7 +42,7 @@ export default function AuditoriaPage() {
     async function fetchLogs() {
       try {
         setLoading(true);
-        const response = await api.get('/auditoria');
+        const response = await api.get('/v1/auditoria');
         setLogs(response.data);
       } catch (error) {
         console.error("Erro ao buscar logs de auditoria:", error);

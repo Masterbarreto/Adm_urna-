@@ -61,7 +61,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
   useEffect(() => {
       const fetchEleicoes = async () => {
           try {
-              const response = await api.get('/eleicoes');
+              const response = await api.get('/v1/eleicoes');
               setEleicoes(response.data.data);
           } catch (error) {
               console.error("Erro ao buscar eleições:", error);

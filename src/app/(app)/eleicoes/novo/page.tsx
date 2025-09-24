@@ -21,7 +21,7 @@ export default function NovaEleicaoPage() {
         id_urna: parseInt(data.urnaId),
       };
 
-      await api.post('/eleicoes', payload);
+      await api.post('/v1/eleicoes', payload);
 
       toast({
         title: 'Eleição Criada',
