@@ -48,6 +48,7 @@ export default function LoginPage() {
         senha: values.password, // Sua API espera "senha"
       });
       
+      // A API retorna o token aninhado dentro da propriedade 'token'
       const { token } = response.data;
       
       if (token) {
@@ -59,7 +60,7 @@ export default function LoginPage() {
         router.push('/dashboard');
         router.refresh();
       } else {
-        throw new Error('Token não encontrado na resposta');
+        throw new Error('Token não encontrado na resposta da API.');
       }
 
     } catch (error: any) {
