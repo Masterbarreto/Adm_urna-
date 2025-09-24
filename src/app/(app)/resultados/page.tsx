@@ -41,10 +41,11 @@ export default function ResultadosPage() {
     async function fetchEleicoes() {
         try {
             const response = await api.get('/v1/eleicoes');
-            setEleicoes(response.data.data);
-            if (response.data.data.length > 0) {
+            const electionsData = response.data.data || [];
+            setEleicoes(electionsData);
+            if (electionsData.length > 0) {
                 // Seleciona a primeira eleição por padrão
-                setSelectedEleicaoId(String(response.data.data[0].id));
+                setSelectedEleicaoId(String(electionsData[0].id));
             }
         } catch (error) {
             console.error("Erro ao buscar eleições:", error);
@@ -199,5 +200,3 @@ export default function ResultadosPage() {
     </div>
   );
 }
-
-    
