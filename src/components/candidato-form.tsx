@@ -33,7 +33,7 @@ import api from '@/lib/api';
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   numero: z.string().min(1, 'O número é obrigatório.'),
-  id_eleicao: z.string({ required_error: 'Selecione uma eleição.' }),
+  eleicao_id: z.string({ required_error: 'Selecione uma eleição.' }),
   foto: z.any().optional(),
 });
 
@@ -55,7 +55,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     defaultValues: {
       nome: defaultValues?.nome || '',
       numero: defaultValues?.numero || '',
-      id_eleicao: defaultValues?.id_eleicao ? String(defaultValues.id_eleicao) : undefined,
+      eleicao_id: defaultValues?.eleicao_id ? String(defaultValues.eleicao_id) : undefined,
     },
   });
 
@@ -142,7 +142,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
                     />
                      <FormField
                         control={form.control}
-                        name="id_eleicao"
+                        name="eleicao_id"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Eleição</FormLabel>

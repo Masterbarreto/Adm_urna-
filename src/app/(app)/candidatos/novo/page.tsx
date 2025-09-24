@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -18,8 +19,7 @@ export default function NovoCandidatoPage() {
         const formData = new FormData();
         formData.append('nome', data.nome);
         formData.append('numero', data.numero);
-        if(data.partido) formData.append('partido', data.partido);
-        formData.append('id_eleicao', data.id_eleicao);
+        formData.append('eleicao_id', data.eleicao_id);
         formData.append('foto', data.foto);
         
         await api.post('/v1/candidatos', formData, {
@@ -32,8 +32,7 @@ export default function NovoCandidatoPage() {
         const payload = {
             nome: data.nome,
             numero: data.numero,
-            partido: data.partido,
-            id_eleicao: data.id_eleicao
+            eleicao_id: data.eleicao_id
         };
         await api.post('/v1/candidatos', payload);
       }

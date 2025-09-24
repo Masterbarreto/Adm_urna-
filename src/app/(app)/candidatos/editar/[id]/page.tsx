@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
@@ -45,11 +46,9 @@ export default function EditarCandidatoPage() {
             const formData = new FormData();
             formData.append('nome', data.nome);
             formData.append('numero', data.numero);
-            if (data.partido) formData.append('partido', data.partido);
-            formData.append('id_eleicao', data.id_eleicao);
+            formData.append('eleicao_id', data.eleicao_id);
             formData.append('foto', data.foto);
 
-            // A API de update pode não suportar multipart, mas se suportar, o header é necessário
             await api.put(`/v1/candidatos/${candidatoId}`, formData, {
                 headers: {
                 'Content-Type': 'multipart/form-data',
@@ -60,8 +59,7 @@ export default function EditarCandidatoPage() {
             const payload = {
                 nome: data.nome,
                 numero: data.numero,
-                partido: data.partido,
-                id_eleicao: data.id_eleicao,
+                eleicao_id: data.eleicao_id,
             };
             await api.put(`/v1/candidatos/${candidatoId}`, payload);
         }
