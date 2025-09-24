@@ -32,7 +32,7 @@ import api from '@/lib/api';
 const formSchema = z.object({
   nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
   numero: z.coerce.number().min(1, 'O número deve ser maior que zero.'),
-  partido: z.string().min(2, 'O partido deve ter pelo menos 2 caracteres.'),
+  partido: z.string().optional(),
   id_eleicao: z.string({ required_error: 'Selecione uma eleição.' }),
   foto: z.any().optional(),
 });
@@ -90,7 +90,9 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
     const formData = new FormData();
     formData.append('nome', values.nome);
     formData.append('numero', String(values.numero));
-    formData.append('partido', values.partido);
+    if (values.partido) {
+      formData.append('partido', values.partido);
+    }
     formData.append('id_eleicao', values.id_eleicao);
     if (values.foto) {
       formData.append('foto', values.foto);
@@ -155,7 +157,7 @@ export default function CandidatoForm({ onSubmit, defaultValues, isEditing = fal
                             name="partido"
                             render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Partido</FormLabel>
+                                <FormLabel>Partido (Opcional)</FormLabel>
                                 <FormControl>
                                 <Input placeholder="Nome do Partido" {...field} />
                                 </FormControl>
