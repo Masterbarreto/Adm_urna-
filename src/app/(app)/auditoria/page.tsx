@@ -54,12 +54,13 @@ export default function AuditoriaPage() {
   }, []);
   
   const actionTypes = useMemo(() => {
-      if(logs.length === 0) return [];
+      if(!Array.isArray(logs) || logs.length === 0) return [];
       return [...new Set(logs.map(log => log.acao))];
   }, [logs]);
 
 
   const filteredLogs = useMemo(() => {
+    if (!Array.isArray(logs)) return [];
     return logs.filter((log) => {
       const actionMatch = actionFilter === 'all' || log.acao === actionFilter;
       const dateMatch = !date || new Date(log.data).toDateString() === date.toDateString();
