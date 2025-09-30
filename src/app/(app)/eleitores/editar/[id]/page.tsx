@@ -22,7 +22,7 @@ export default function EditarEleitorPage() {
         try {
           const response = await api.get(`/v1/eleitores/${eleitorId}`);
           setEleitor(response.data);
-        } catch (error)
+        } catch (error) {
           console.error("Erro ao buscar eleitor:", error);
           toast({
             title: 'Erro ao carregar eleitor',
@@ -80,3 +80,5 @@ export default function EditarEleitorPage() {
     </div>
   );
 }
+
+    
